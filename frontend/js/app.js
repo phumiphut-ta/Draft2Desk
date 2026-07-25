@@ -624,18 +624,25 @@ function setupSettingsEvents() {
                     templates: data
                 };
 
-                const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backupPayload, null, 2));
+                const jsonString = JSON.stringify(backupPayload, null, 2);
+                const blob = new Blob([jsonString], { type: 'application/json;charset=utf-8;' });
+                const url = URL.createObjectURL(blob);
+
                 const downloadAnchor = document.createElement('a');
-                downloadAnchor.setAttribute("href", dataStr);
-                downloadAnchor.setAttribute("download", `Draft2Desk_Backup_${new Date().toISOString().slice(0,10)}.json`);
+                downloadAnchor.href = url;
+                downloadAnchor.download = `Draft2Desk_Backup_${new Date().toISOString().slice(0,10)}.json`;
                 document.body.appendChild(downloadAnchor);
                 downloadAnchor.click();
-                downloadAnchor.remove();
+
+                setTimeout(() => {
+                    downloadAnchor.remove();
+                    URL.revokeObjectURL(url);
+                }, 500);
 
                 showToast('ส่งออกไฟล์สำรองข้อมูล (.json) เรียบร้อยแล้ว!', 'success');
             } catch (err) {
-                console.error(err);
-                showToast('เกิดข้อผิดพลาดในการส่งออกข้อมูล', 'error');
+                console.error('Export Error:', err);
+                showToast('เกิดข้อผิดพลาดในการส่งออกข้อมูล: ' + err.message, 'error');
             }
         });
     }
@@ -654,19 +661,26 @@ function setupSettingsEvents() {
             const reader = new FileReader();
             reader.onload = async (event) => {
                 try {
-                    const parsed = JSON.parse(event.target.result);
+                    let rawText = event.target.result;
+                    if (typeof rawText === 'string') {
+                        rawText = rawText.replace(/^\uFEFF/, '').trim(); // Clean UTF-8 BOM
+                    }
+
+                    const parsed = JSON.parse(rawText);
                     let importedTemplates = [];
 
                     if (Array.isArray(parsed)) {
                         importedTemplates = parsed;
-                    } else if (parsed.templates && Array.isArray(parsed.templates)) {
-                        importedTemplates = parsed.templates;
+                    } else if (parsed && typeof parsed === 'object') {
+                        if (Array.isArray(parsed.templates)) {
+                            importedTemplates = parsed.templates;
+                        }
                         if (parsed.settings) {
                             saveSettings(parsed.settings.fontFamily, parsed.settings.fontSize);
                         }
                     }
 
-                    if (importedTemplates.length === 0) {
+                    if (!importedTemplates || importedTemplates.length === 0) {
                         showToast('ไม่พบข้อมูลเทมเพลตในไฟล์ที่เลือก', 'error');
                         return;
                     }
@@ -691,13 +705,13 @@ function setupSettingsEvents() {
                     closeSettingsModal();
                     showToast(`นำเข้าเทมเพลตสำเร็จ ${successCount} รายการ!`, 'success');
                 } catch (err) {
-                    console.error(err);
-                    showToast('ไฟล์สำรองไม่ถูกต้อง หรือรูปแบบ JSON ผิดพลาด', 'error');
+                    console.error('Import Error:', err);
+                    showToast(`ไฟล์สำรองไม่ถูกต้อง: ${err.message}`, 'error');
                 } finally {
                     importFileInput.value = '';
                 }
             };
-            reader.readAsText(file);
+            reader.readAsText(file, 'UTF-8');
         });
     }
 }
