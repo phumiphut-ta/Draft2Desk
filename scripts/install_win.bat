@@ -9,7 +9,7 @@ set SCRIPT_DIR=%~dp0
 set PROJECT_DIR=%SCRIPT_DIR%..
 set MANIFEST_TARGET=%APPDATA%\Microsoft\Word\AddIns
 
-echo [1/3] Creating Manifest Folder...
+echo [1/3] Preparing Word AddIns Folder...
 if not exist "%MANIFEST_TARGET%" mkdir "%MANIFEST_TARGET%"
 
 echo [2/3] Copying manifest.xml...
@@ -20,7 +20,7 @@ if %ERRORLEVEL% EQU 0 (
     echo [X] Failed to copy manifest.xml
 )
 
-echo [3/3] Installing Python Dependencies and Starting Backend Server...
+echo [3/3] Setting up Python Virtual Environment...
 cd /d "%PROJECT_DIR%"
 
 where python >nul 2>nul
@@ -30,10 +30,19 @@ if %ERRORLEVEL% NEQ 0 (
     exit /b 1
 )
 
-pip install -r backend/requirements.txt
-echo [✓] Server starting on http://127.0.0.1:8000
+if not exist ".venv" (
+    echo [i] Creating isolated virtual environment (.venv)...
+    python -m venv .venv
+)
+
+call .venv\Scripts\activate.bat
+pip install -q -r backend/requirements.txt
+echo [✓] Python dependencies ready.
+
 echo.
-echo Open Microsoft Word -> Insert -> My Add-ins -> Shared Folder -> Select Draft2Desk!
+echo ========================================================
+echo  Open Word -^> Insert -^> My Add-ins -^> Shared Folder -^> Draft2Desk
+echo ========================================================
 echo.
 
 python -m uvicorn backend.main:app --host 127.0.0.1 --port 8000

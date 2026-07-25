@@ -6,6 +6,7 @@ echo "   Draft2Desk Word Add-in Uninstaller     "
 echo "=========================================="
 echo ""
 
+# 1. Remove Manifest from WEF Folder
 WEF_MANIFEST="$HOME/Library/Containers/com.microsoft.Word/Data/Documents/wef/manifest.xml"
 
 if [ -f "$WEF_MANIFEST" ]; then
@@ -15,10 +16,17 @@ else
     echo "[i] Draft2Desk Manifest was not found in WEF folder."
 fi
 
-# Kill running uvicorn backend server if any
-pkill -f "uvicorn backend.main:app" > /dev/null 2>&1
-echo "[✓] Draft2Desk Backend Server process stopped."
+# 2. Stop running Draft2Desk backend server process on port 8000 safely
+PID=$(lsof -ti:8000 2>/dev/null)
+if [ -n "$PID" ]; then
+    kill -9 $PID 2>/dev/null
+    echo "[✓] Draft2Desk Backend Server (PID: $PID) stopped."
+else
+    echo "[i] No running Draft2Desk Backend Server detected."
+fi
 
 echo ""
-echo "Draft2Desk has been uninstalled successfully from Microsoft Word!"
+echo "=========================================="
+echo " Draft2Desk uninstalled successfully!     "
+echo "=========================================="
 echo "You can now close this window."
