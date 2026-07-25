@@ -607,6 +607,99 @@ function setupSettingsEvents() {
             showToast('คืนค่าฟอนต์และขนาดตัวอักษรเป็นค่าเริ่มต้นแล้ว', 'info');
         });
     }
+
+    // Export Data (.json backup download)
+    const btnExportData = document.getElementById('btn-export-data');
+    if (btnExportData) {
+        btnExportData.addEventListener('click', async () => {
+            try {
+                const response = await fetch(API_BASE);
+                if (!response.ok) throw new Error('Cannot fetch templates for backup');
+                const data = await response.json();
+                
+                const backupPayload = {
+                    version: '1.0',
+                    exportDate: new Date().toISOString(),
+                    settings: appSettings,
+                    templates: data
+                };
+
+                const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backupPayload, null, 2));
+                const downloadAnchor = document.createElement('a');
+                downloadAnchor.setAttribute("href", dataStr);
+                downloadAnchor.setAttribute("download", `Draft2Desk_Backup_${new Date().toISOString().slice(0,10)}.json`);
+                document.body.appendChild(downloadAnchor);
+                downloadAnchor.click();
+                downloadAnchor.remove();
+
+                showToast('ส่งออกไฟล์สำรองข้อมูล (.json) เรียบร้อยแล้ว!', 'success');
+            } catch (err) {
+                console.error(err);
+                showToast('เกิดข้อผิดพลาดในการส่งออกข้อมูล', 'error');
+            }
+        });
+    }
+
+    // Import Data (.json backup restore)
+    const btnImportData = document.getElementById('btn-import-data');
+    const importFileInput = document.getElementById('import-file-input');
+
+    if (btnImportData && importFileInput) {
+        btnImportData.addEventListener('click', () => importFileInput.click());
+
+        importFileInput.addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = async (event) => {
+                try {
+                    const parsed = JSON.parse(event.target.result);
+                    let importedTemplates = [];
+
+                    if (Array.isArray(parsed)) {
+                        importedTemplates = parsed;
+                    } else if (parsed.templates && Array.isArray(parsed.templates)) {
+                        importedTemplates = parsed.templates;
+                        if (parsed.settings) {
+                            saveSettings(parsed.settings.fontFamily, parsed.settings.fontSize);
+                        }
+                    }
+
+                    if (importedTemplates.length === 0) {
+                        showToast('ไม่พบข้อมูลเทมเพลตในไฟล์ที่เลือก', 'error');
+                        return;
+                    }
+
+                    let successCount = 0;
+                    for (let tpl of importedTemplates) {
+                        if (tpl.title && tpl.content_html) {
+                            await fetch(API_BASE, {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                    title: tpl.title,
+                                    category: tpl.category || 'ทั่วไป',
+                                    content_html: tpl.content_html
+                                })
+                            });
+                            successCount++;
+                        }
+                    }
+
+                    await fetchTemplates();
+                    closeSettingsModal();
+                    showToast(`นำเข้าเทมเพลตสำเร็จ ${successCount} รายการ!`, 'success');
+                } catch (err) {
+                    console.error(err);
+                    showToast('ไฟล์สำรองไม่ถูกต้อง หรือรูปแบบ JSON ผิดพลาด', 'error');
+                } finally {
+                    importFileInput.value = '';
+                }
+            };
+            reader.readAsText(file);
+        });
+    }
 }
 
 function applySettingsToUI() {

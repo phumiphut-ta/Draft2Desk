@@ -283,6 +283,23 @@
                             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;เรื่อง ขออนุมัติหลักการและงบประมาณโครงการ (Draft2Desk)
                         </div>
                     </div>
+
+                    <!-- Backup & Restore Data Section -->
+                    <div class="backup-restore-container" style="background: rgba(139,92,246,0.05); border: 1px solid rgba(139,92,246,0.2); border-radius: 10px; padding: 14px;">
+                        <span class="text-secondary" style="font-size: 0.8rem; font-weight:600; display: block; margin-bottom: 8px; color: var(--secondary);">
+                            <i class="fa-solid fa-database"></i> สำรองและย้ายข้อมูลเทมเพลต (Backup & Restore)
+                        </span>
+                        <p class="text-secondary" style="font-size: 0.78rem; margin-bottom: 10px;">คุณสามารถส่งออกเทมเพลตทั้งหมดเป็นไฟล์สำรองเพื่อนำไปใช้ในเครื่องอื่นได้ง่ายๆ:</p>
+                        <div style="display:flex; gap:10px;">
+                            <button type="button" id="btn-export-data" class="btn btn-secondary" style="flex:1; font-size:0.8rem; padding:8px;">
+                                <i class="fa-solid fa-download"></i> ส่งออกข้อมูล (.json)
+                            </button>
+                            <button type="button" id="btn-import-data" class="btn btn-secondary" style="flex:1; font-size:0.8rem; padding:8px;">
+                                <i class="fa-solid fa-upload"></i> นำเข้าข้อมูล (.json)
+                            </button>
+                            <input type="file" id="import-file-input" accept=".json" style="display:none;" />
+                        </div>
+                    </div>
                 </div>
                 <div class="modal-footer" style="justify-content: space-between;">
                     <button type="button" id="btn-reset-settings" class="btn btn-secondary" style="color: #ef4444; border-color: rgba(239,68,68,0.3);">
