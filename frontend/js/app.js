@@ -212,24 +212,15 @@ function renderTemplates() {
     });
 }
 
-// Radio & Checkbox Variable Helper Functions
+// Radio Variable Helper Functions
 function isRadioVar(varName) {
     if (!varName) return false;
-    return /^(radio:|opt:|rdo:)/i.test(varName) || /_(radio|opt|rdo)$/i.test(varName);
-}
-
-function isCheckboxVar(varName) {
-    if (!varName) return false;
-    return /^(chk:|checkbox:|check:|เช็ค:|เลือก:)/i.test(varName) || 
-           /^(is_|has_|chk_)/i.test(varName) || 
-           /_chk$/i.test(varName);
+    return /^(radio:|opt:|rdo:|เช็ค:|เลือก:)/i.test(varName) || /_(radio|opt|rdo)$/i.test(varName);
 }
 
 function getCleanVarName(varName) {
     if (!varName) return '';
-    return varName.replace(/^(chk:|checkbox:|check:|เช็ค:|เลือก:|radio:|opt:|rdo:)/i, '')
-                  .replace(/^(is_|has_|chk_)/i, '')
-                  .replace(/_chk$/i, '')
+    return varName.replace(/^(radio:|opt:|rdo:|เช็ค:|เลือก:)/i, '')
                   .replace(/_(radio|opt|rdo)$/i, '')
                   .trim();
 }
@@ -245,56 +236,33 @@ function handleTemplateUsage(tpl) {
         tpl.variables.forEach(varName => {
             const varId = varName.replace(/[^a-zA-Z0-9_\u0E00-\u0E7F]/g, '_');
             const isRadio = isRadioVar(varName);
-            const isChk = isCheckboxVar(varName);
             const displayName = getCleanVarName(varName);
 
             if (isRadio) {
                 const radioCard = document.createElement('div');
                 radioCard.className = 'var-radio-card';
                 radioCard.innerHTML = `
-                    <div class="var-radio-header">
+                    <div class="var-radio-title">
                         <i class="fa-solid fa-circle-dot text-accent"></i> <span>ต้องการใส่คำว่า "<b>${displayName}</b>" หรือไม่?</span>
                     </div>
-                    <div class="var-radio-group">
-                        <label class="radio-pill-btn">
+                    <div class="var-radio-options">
+                        <label class="radio-option-item">
                             <input type="radio" name="var-rdo-${varId}" value="yes" checked data-display="${displayName}">
-                            <span>🔘 มี (${displayName})</span>
+                            <div class="radio-option-content">
+                                <span class="radio-option-title">มี</span>
+                                <span class="radio-option-sub">ใส่คำว่า "${displayName}" ลงในเอกสาร Word</span>
+                            </div>
                         </label>
-                        <label class="radio-pill-btn">
+                        <label class="radio-option-item">
                             <input type="radio" name="var-rdo-${varId}" value="no">
-                            <span>⚪ ไม่มี</span>
+                            <div class="radio-option-content">
+                                <span class="radio-option-title">ไม่มี</span>
+                                <span class="radio-option-sub">ไม่ใส่ข้อความนี้ลงในเอกสาร (ลบตัวแปรออก)</span>
+                            </div>
                         </label>
                     </div>
                 `;
                 variablesForm.appendChild(radioCard);
-            } else if (isChk) {
-                const checkboxCard = document.createElement('div');
-                checkboxCard.className = 'var-checkbox-card';
-                checkboxCard.innerHTML = `
-                    <label class="checkbox-toggle-label" for="var-${varId}">
-                        <input type="checkbox" id="var-${varId}" name="${varName}" checked data-chk="true" data-display="${displayName}">
-                        <span class="checkbox-custom-box"><i class="fa-solid fa-check"></i></span>
-                        <span class="checkbox-title">${displayName}</span>
-                    </label>
-                    <div class="checkbox-format-options">
-                        <small>รูปแบบผลลัพธ์ที่จะแทรกลง Word:</small>
-                        <div class="radio-pill-group">
-                            <label class="radio-pill">
-                                <input type="radio" name="fmt-${varId}" value="text_only" checked>
-                                <span>แทรกคำว่า "${displayName}" เฉพาะเมื่อติ๊กถูก (หากไม่ติ๊กจะว่างเปล่า)</span>
-                            </label>
-                            <label class="radio-pill">
-                                <input type="radio" name="fmt-${varId}" value="symbol_name">
-                                <span>☑ / ☐ พร้อมชื่อคำ (☑ ${displayName} / ☐ ${displayName})</span>
-                            </label>
-                            <label class="radio-pill">
-                                <input type="radio" name="fmt-${varId}" value="symbol_only">
-                                <span>☑ / ☐ เฉพาะเครื่องหมาย</span>
-                            </label>
-                        </div>
-                    </div>
-                `;
-                variablesForm.appendChild(checkboxCard);
             } else {
                 const formGroup = document.createElement('div');
                 formGroup.className = 'var-input-group';
@@ -342,7 +310,6 @@ function insertResolvedTemplate() {
     activeUsageTemplate.variables.forEach(varName => {
         const varId = varName.replace(/[^a-zA-Z0-9_\u0E00-\u0E7F]/g, '_');
         const isRadio = isRadioVar(varName);
-        const isChk = isCheckboxVar(varName);
         let finalVal = '';
 
         if (isRadio) {
@@ -350,21 +317,7 @@ function insertResolvedTemplate() {
             if (radioChoice && radioChoice.value === 'yes') {
                 finalVal = radioChoice.dataset.display || getCleanVarName(varName);
             } else {
-                finalVal = '';
-            }
-        } else if (isChk) {
-            const chkElem = document.getElementById(`var-${varId}`);
-            const isChecked = chkElem ? chkElem.checked : false;
-            const displayName = chkElem ? chkElem.dataset.display : getCleanVarName(varName);
-            const fmtRadio = document.querySelector(`input[name="fmt-${varId}"]:checked`);
-            const fmt = fmtRadio ? fmtRadio.value : 'symbol_name';
-
-            if (fmt === 'symbol_name') {
-                finalVal = isChecked ? `☑ ${displayName}` : `☐ ${displayName}`;
-            } else if (fmt === 'symbol_only') {
-                finalVal = isChecked ? `☑` : `☐`;
-            } else if (fmt === 'text_only') {
-                finalVal = isChecked ? displayName : ``;
+                finalVal = ''; // ไม่มี -> ไม่ใส่คำนั้นลงไป
             }
         } else {
             const inputElem = document.getElementById(`var-${varId}`);
@@ -460,8 +413,8 @@ function setupEventListeners() {
 
         if (cleanName) {
             let varTag = cleanName;
-            if (varType === 'chk' && !isCheckboxVar(cleanName)) {
-                varTag = `chk:${cleanName}`;
+            if (varType === 'radio' && !isRadioVar(cleanName)) {
+                varTag = `opt:${cleanName}`;
             }
             insertTextAtTextareaCursor(templateContentInput, `{{${varTag}}}`);
         }
