@@ -212,7 +212,12 @@ function renderTemplates() {
     });
 }
 
-// Checkbox Variable Helper Functions
+// Radio & Checkbox Variable Helper Functions
+function isRadioVar(varName) {
+    if (!varName) return false;
+    return /^(radio:|opt:|rdo:)/i.test(varName) || /_(radio|opt|rdo)$/i.test(varName);
+}
+
 function isCheckboxVar(varName) {
     if (!varName) return false;
     return /^(chk:|checkbox:|check:|เช็ค:|เลือก:)/i.test(varName) || 
@@ -222,9 +227,10 @@ function isCheckboxVar(varName) {
 
 function getCleanVarName(varName) {
     if (!varName) return '';
-    return varName.replace(/^(chk:|checkbox:|check:|เช็ค:|เลือก:)/i, '')
+    return varName.replace(/^(chk:|checkbox:|check:|เช็ค:|เลือก:|radio:|opt:|rdo:)/i, '')
                   .replace(/^(is_|has_|chk_)/i, '')
                   .replace(/_chk$/i, '')
+                  .replace(/_(radio|opt|rdo)$/i, '')
                   .trim();
 }
 
@@ -238,10 +244,30 @@ function handleTemplateUsage(tpl) {
         
         tpl.variables.forEach(varName => {
             const varId = varName.replace(/[^a-zA-Z0-9_\u0E00-\u0E7F]/g, '_');
+            const isRadio = isRadioVar(varName);
             const isChk = isCheckboxVar(varName);
             const displayName = getCleanVarName(varName);
 
-            if (isChk) {
+            if (isRadio) {
+                const radioCard = document.createElement('div');
+                radioCard.className = 'var-radio-card';
+                radioCard.innerHTML = `
+                    <div class="var-radio-header">
+                        <i class="fa-solid fa-circle-dot text-accent"></i> <span>ต้องการใส่คำว่า "<b>${displayName}</b>" หรือไม่?</span>
+                    </div>
+                    <div class="var-radio-group">
+                        <label class="radio-pill-btn">
+                            <input type="radio" name="var-rdo-${varId}" value="yes" checked data-display="${displayName}">
+                            <span>🔘 มี (${displayName})</span>
+                        </label>
+                        <label class="radio-pill-btn">
+                            <input type="radio" name="var-rdo-${varId}" value="no">
+                            <span>⚪ ไม่มี</span>
+                        </label>
+                    </div>
+                `;
+                variablesForm.appendChild(radioCard);
+            } else if (isChk) {
                 const checkboxCard = document.createElement('div');
                 checkboxCard.className = 'var-checkbox-card';
                 checkboxCard.innerHTML = `
@@ -315,10 +341,18 @@ function insertResolvedTemplate() {
     // Replace all variables
     activeUsageTemplate.variables.forEach(varName => {
         const varId = varName.replace(/[^a-zA-Z0-9_\u0E00-\u0E7F]/g, '_');
+        const isRadio = isRadioVar(varName);
         const isChk = isCheckboxVar(varName);
         let finalVal = '';
 
-        if (isChk) {
+        if (isRadio) {
+            const radioChoice = document.querySelector(`input[name="var-rdo-${varId}"]:checked`);
+            if (radioChoice && radioChoice.value === 'yes') {
+                finalVal = radioChoice.dataset.display || getCleanVarName(varName);
+            } else {
+                finalVal = '';
+            }
+        } else if (isChk) {
             const chkElem = document.getElementById(`var-${varId}`);
             const isChecked = chkElem ? chkElem.checked : false;
             const displayName = chkElem ? chkElem.dataset.display : getCleanVarName(varName);

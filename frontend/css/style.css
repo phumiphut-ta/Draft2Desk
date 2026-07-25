@@ -977,3 +977,64 @@ body {
 .radio-pill input[type="radio"] {
     accent-color: var(--primary);
 }
+
+/* Radio Button Variable Card Styling */
+.var-radio-card {
+    background: rgba(139, 92, 246, 0.06);
+    border: 1px solid rgba(139, 92, 246, 0.25);
+    border-radius: 10px;
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 14px;
+}
+
+.var-radio-header {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.var-radio-group {
+    display: flex;
+    gap: 12px;
+}
+
+.radio-pill-btn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 14px;
+    background: rgba(0, 0, 0, 0.25);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.88rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    transition: all 0.2s ease;
+}
+
+.radio-pill-btn:hover {
+    border-color: var(--primary);
+    background: rgba(139, 92, 246, 0.1);
+    color: var(--text-primary);
+}
+
+.radio-pill-btn input[type="radio"] {
+    accent-color: var(--primary);
+}
+
+.radio-pill-btn:has(input[type="radio"]:checked) {
+    border-color: var(--primary);
+    background: rgba(139, 92, 246, 0.2);
+    color: #ffffff;
+    box-shadow: 0 0 12px var(--border-glow);
+    font-weight: 600;
+}
