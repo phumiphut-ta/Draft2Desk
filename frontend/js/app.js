@@ -212,6 +212,22 @@ function renderTemplates() {
     });
 }
 
+// Checkbox Variable Helper Functions
+function isCheckboxVar(varName) {
+    if (!varName) return false;
+    return /^(chk:|checkbox:|check:|เช็ค:|เลือก:)/i.test(varName) || 
+           /^(is_|has_|chk_)/i.test(varName) || 
+           /_chk$/i.test(varName);
+}
+
+function getCleanVarName(varName) {
+    if (!varName) return '';
+    return varName.replace(/^(chk:|checkbox:|check:|เช็ค:|เลือก:)/i, '')
+                  .replace(/^(is_|has_|chk_)/i, '')
+                  .replace(/_chk$/i, '')
+                  .trim();
+}
+
 // Handle Template Usage (Insert or customize variables)
 function handleTemplateUsage(tpl) {
     activeUsageTemplate = tpl;
@@ -221,18 +237,51 @@ function handleTemplateUsage(tpl) {
         variablesForm.innerHTML = '';
         
         tpl.variables.forEach(varName => {
-            const formGroup = document.createElement('div');
-            formGroup.className = 'var-input-group';
-            
-            // Set dynamic placeholder/type based on name if applicable (like วันที่)
-            let type = 'text';
-            let placeholder = `ระบุค่าสำหรับ {{${varName}}}`;
-            
-            formGroup.innerHTML = `
-                <label for="var-${varName}">${varName}</label>
-                <input type="${type}" id="var-${varName}" name="${varName}" placeholder="${placeholder}" required>
-            `;
-            variablesForm.appendChild(formGroup);
+            const varId = varName.replace(/[^a-zA-Z0-9_\u0E00-\u0E7F]/g, '_');
+            const isChk = isCheckboxVar(varName);
+            const displayName = getCleanVarName(varName);
+
+            if (isChk) {
+                const checkboxCard = document.createElement('div');
+                checkboxCard.className = 'var-checkbox-card';
+                checkboxCard.innerHTML = `
+                    <label class="checkbox-toggle-label" for="var-${varId}">
+                        <input type="checkbox" id="var-${varId}" name="${varName}" checked data-chk="true" data-display="${displayName}">
+                        <span class="checkbox-custom-box"><i class="fa-solid fa-check"></i></span>
+                        <span class="checkbox-title">${displayName}</span>
+                    </label>
+                    <div class="checkbox-format-options">
+                        <small>รูปแบบผลลัพธ์ที่จะแทรกลง Word:</small>
+                        <div class="radio-pill-group">
+                            <label class="radio-pill">
+                                <input type="radio" name="fmt-${varId}" value="symbol_name" checked>
+                                <span>☑ / ☐ พร้อมชื่อคำ (${displayName})</span>
+                            </label>
+                            <label class="radio-pill">
+                                <input type="radio" name="fmt-${varId}" value="symbol_only">
+                                <span>☑ / ☐ เฉพาะเครื่องหมาย</span>
+                            </label>
+                            <label class="radio-pill">
+                                <input type="radio" name="fmt-${varId}" value="text_only">
+                                <span>แสดงชื่อคำเฉพาะเมื่อเช็ค</span>
+                            </label>
+                        </div>
+                    </div>
+                `;
+                variablesForm.appendChild(checkboxCard);
+            } else {
+                const formGroup = document.createElement('div');
+                formGroup.className = 'var-input-group';
+                
+                let type = 'text';
+                let placeholder = `ระบุค่าสำหรับ {{${varName}}}`;
+                
+                formGroup.innerHTML = `
+                    <label for="var-${varId}">${varName}</label>
+                    <input type="${type}" id="var-${varId}" name="${varName}" placeholder="${placeholder}" required>
+                `;
+                variablesForm.appendChild(formGroup);
+            }
         });
         
         // Auto fill today's date for "วันที่" variable if present
@@ -265,9 +314,31 @@ function insertResolvedTemplate() {
     
     // Replace all variables
     activeUsageTemplate.variables.forEach(varName => {
-        const inputVal = document.getElementById(`var-${varName}`).value;
+        const varId = varName.replace(/[^a-zA-Z0-9_\u0E00-\u0E7F]/g, '_');
+        const isChk = isCheckboxVar(varName);
+        let finalVal = '';
+
+        if (isChk) {
+            const chkElem = document.getElementById(`var-${varId}`);
+            const isChecked = chkElem ? chkElem.checked : false;
+            const displayName = chkElem ? chkElem.dataset.display : getCleanVarName(varName);
+            const fmtRadio = document.querySelector(`input[name="fmt-${varId}"]:checked`);
+            const fmt = fmtRadio ? fmtRadio.value : 'symbol_name';
+
+            if (fmt === 'symbol_name') {
+                finalVal = isChecked ? `☑ ${displayName}` : `☐ ${displayName}`;
+            } else if (fmt === 'symbol_only') {
+                finalVal = isChecked ? `☑` : `☐`;
+            } else if (fmt === 'text_only') {
+                finalVal = isChecked ? displayName : ``;
+            }
+        } else {
+            const inputElem = document.getElementById(`var-${varId}`);
+            finalVal = inputElem ? inputElem.value : '';
+        }
+
         // Escape input value to prevent breaking HTML structure
-        const escapedVal = escapeHtml(inputVal);
+        const escapedVal = escapeHtml(finalVal);
         
         // Regex to match {{varName}} with optional spaces
         const regex = new RegExp(`\\{\\{\\s*${escapeRegExp(varName)}\\s*\\}\\}`, 'g');
@@ -350,8 +421,15 @@ function setupEventListeners() {
     }
     function confirmInsertVariable() {
         const cleanName = variableNameInput.value.trim().replace(/[{}]+/g, '');
+        const typeSelect = document.getElementById('variable-type-select');
+        const varType = typeSelect ? typeSelect.value : 'text';
+
         if (cleanName) {
-            insertTextAtTextareaCursor(templateContentInput, `{{${cleanName}}}`);
+            let varTag = cleanName;
+            if (varType === 'chk' && !isCheckboxVar(cleanName)) {
+                varTag = `chk:${cleanName}`;
+            }
+            insertTextAtTextareaCursor(templateContentInput, `{{${varTag}}}`);
         }
         closeVariableInline();
     }
