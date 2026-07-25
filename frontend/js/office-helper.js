@@ -241,7 +241,7 @@ async function insertHtmlToWord(htmlContent) {
                     await context.sync();
                 } catch (ooxmlErr) {
                     console.warn("insertOoxml failed, fallback to insertHtml:", ooxmlErr);
-                    const fullHtml = `<div style="font-family: '${settings.fontFamily}', 'TH Sarabun New', sans-serif; font-size: ${settings.fontSize}pt; text-align: justify;">${cleanHtml}</div>`;
+                    const fullHtml = `<div style="font-family: '${settings.fontFamily}', 'TH Sarabun New', 'Angsana New', sans-serif; font-size: ${settings.fontSize}pt; text-align: justify; text-justify: inter-cluster; line-height: 1.6;">${cleanHtml}</div>`;
                     selection.insertHtml(fullHtml, Word.InsertLocation.replace);
                     await context.sync();
                 }
