@@ -254,16 +254,16 @@ function handleTemplateUsage(tpl) {
                         <small>รูปแบบผลลัพธ์ที่จะแทรกลง Word:</small>
                         <div class="radio-pill-group">
                             <label class="radio-pill">
-                                <input type="radio" name="fmt-${varId}" value="symbol_name" checked>
-                                <span>☑ / ☐ พร้อมชื่อคำ (${displayName})</span>
+                                <input type="radio" name="fmt-${varId}" value="text_only" checked>
+                                <span>แทรกคำว่า "${displayName}" เฉพาะเมื่อติ๊กถูก (หากไม่ติ๊กจะว่างเปล่า)</span>
+                            </label>
+                            <label class="radio-pill">
+                                <input type="radio" name="fmt-${varId}" value="symbol_name">
+                                <span>☑ / ☐ พร้อมชื่อคำ (☑ ${displayName} / ☐ ${displayName})</span>
                             </label>
                             <label class="radio-pill">
                                 <input type="radio" name="fmt-${varId}" value="symbol_only">
                                 <span>☑ / ☐ เฉพาะเครื่องหมาย</span>
-                            </label>
-                            <label class="radio-pill">
-                                <input type="radio" name="fmt-${varId}" value="text_only">
-                                <span>แสดงชื่อคำเฉพาะเมื่อเช็ค</span>
                             </label>
                         </div>
                     </div>
