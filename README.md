@@ -75,6 +75,17 @@ scripts/install_win.bat
 
 ---
 
+### 🗑️ การถอนการติดตั้ง (Uninstallation)
+
+หากต้องการถอนการติดตั้ง Add-in ออกจาก Microsoft Word:
+
+* **บน macOS:** ดับเบิลคลิกไฟล์ `scripts/uninstall_mac.command`
+* **บน Windows:** ดับเบิลคลิกไฟล์ `scripts/uninstall_win.bat`
+
+*สคริปต์จะลบไฟล์ `manifest.xml` ออกจากโฟลเดอร์ของ Word และปิดเซิร์ฟเวอร์หลังบ้านให้อัตโนมัติ*
+
+---
+
 ### วิธีที่ 2: การติดตั้งแบบ Manual (สำหรับนักพัฒนา)
 
 1. **เตรียม Environment และติดตั้ง Dependencies**:
