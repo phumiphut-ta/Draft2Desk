@@ -39,6 +39,46 @@
 
 ---
 
+## 2.1 ER-Diagram & Data Dictionary (พจนานุกรมข้อมูล)
+
+### ER-Diagram
+```mermaid
+erDiagram
+    TEMPLATES {
+        string id PK "tpl_XXXXXXXX"
+        string title "ชื่อเทมเพลตเอกสาร"
+        string category "หมวดหมู่เอกสาร"
+        string content_html "เนื้อหาเอกสาร HTML"
+    }
+
+    SETTINGS {
+        string fontFamily "ฟอนต์หลัก (TH Sarabun New)"
+        integer fontSize "ขนาดฟอนต์ (16)"
+    }
+
+    VARIABLES {
+        string varName "ชื่อตัวแปร"
+        string varType "ประเภท (Text / Radio)"
+        string templateId FK "อ้างอิง TEMPLATES(id)"
+    }
+
+    TEMPLATES ||--o{ VARIABLES : "contains"
+```
+
+### Data Dictionary Table
+| ตาราง/โครงสร้าง | ฟิลด์ (Field) | ชนิดข้อมูล | Primary Key | คำอธิบาย |
+| :--- | :--- | :--- | :--- | :--- |
+| **`templates`** | `id` | TEXT | YES | รหัสระบุเทมเพลต (`tpl_XXXXXXXX`) |
+| | `title` | TEXT | NO | ชื่อหัวข้อร่างเทมเพลต |
+| | `category` | TEXT | NO | หมวดหมู่เอกสาร (งานสารบรรณ, งานบุคคล ฯลฯ) |
+| | `content_html` | TEXT | NO | เนื้อหาเอกสาร HTML Rich Text รวมแท็ก `{{...}}` |
+| **`settings`** | `fontFamily` | STRING | NO | แบบตัวอักษรหลัก (`TH Sarabun New`) |
+| | `fontSize` | INTEGER | NO | ขนาดตัวอักษรหลัก (`16pt`) |
+| **`variables`** | `Text Var` | STRING | NO | ตัวแปรชนิดข้อความ `{{ชื่อตัวแปร}}` |
+| | `Radio Var` | STRING | NO | ตัวแปรปุ่มวิทยุ `{{opt:ชื่อคำ}}` (`มี` / `ไม่มี`) |
+
+---
+
 ## 3. โครงสร้างโปรเจกต์ (Project Structure)
 
 ```text

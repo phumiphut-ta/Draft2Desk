@@ -44,6 +44,56 @@ Draft2Desk ออกแบบตามสถาปัตยกรรม Decouple
 
 ---
 
+## 🗄️ 2. ER-Diagram & Data Dictionary (พจนานุกรมข้อมูล)
+
+### 📊 ER-Diagram (Entity-Relationship Diagram)
+```mermaid
+erDiagram
+    TEMPLATES {
+        string id PK "รหัสอ้างอิงเทมเพลต (tpl_XXXXXXXX)"
+        string title "ชื่อเทมเพลตเอกสาร"
+        string category "หมวดหมู่เอกสาร (งานสารบรรณ ฯลฯ)"
+        string content_html "เนื้อหาเอกสาร HTML Rich Text"
+    }
+
+    SETTINGS {
+        string fontFamily "รูปแบบฟอนต์หลัก (TH Sarabun New)"
+        integer fontSize "ขนาดฟอนต์หลัก pt (16)"
+    }
+
+    VARIABLES {
+        string varName "ชื่อตัวแปรที่ตรวจพบ"
+        string varType "ประเภทตัวแปร (Text / Radio)"
+        string templateId FK "เชื่อมโยงกับ TEMPLATES(id)"
+    }
+
+    TEMPLATES ||--o{ VARIABLES : "contains"
+```
+
+### 📋 Data Dictionary (พจนานุกรมข้อมูล)
+
+#### 1. ตาราง `templates` (ฐานข้อมูล SQLite: `draft2desk.db`)
+| คอลัมน์ (Column) | ชนิดข้อมูล (Type) | Nullable | Primary Key | คำอธิบาย (Description) |
+| :--- | :--- | :--- | :--- | :--- |
+| **`id`** | TEXT | NO | YES | รหัสระบุเทมเพลตเฉพาะ สุ่มด้วย UUID 8 ตัวอักษรขึ้นต้นด้วย `tpl_` |
+| **`title`** | TEXT | NO | NO | ชื่อหัวข้อร่างเทมเพลตเอกสาร (เช่น *บันทึกเสนอขออนุมัติหลักการ*) |
+| **`category`** | TEXT | NO | NO | หมวดหมู่เอกสาร (เช่น *งานสารบรรณ*, *งานบุคคล*, *งานจัดซื้อจัดจ้าง*) |
+| **`content_html`** | TEXT | NO | NO | เนื้อหาเอกสารในรูปแบบ HTML Rich Text รวมถึงตัวแปร `{{...}}` |
+
+#### 2. โครงสร้าง `settings` (การตั้งค่าฟอนต์ & ไฟล์สำรองข้อมูล)
+| ฟิลด์ (Field) | ชนิดข้อมูล (Type) | ค่าเริ่มต้น (Default) | คำอธิบาย (Description) |
+| :--- | :--- | :--- | :--- |
+| **`fontFamily`** | STRING | `"TH Sarabun New"` | ชื่อฟอนต์หลักมาตรฐาน ใช้สร้างแท็ก `<w:rFonts>` ใน OOXML |
+| **`fontSize`** | INTEGER | `16` | ขนาดฟอนต์หลัก (pt) ใช้คำนวณแท็ก `<w:sz>` ใน OOXML |
+
+#### 3. โครงสร้างตัวแปร `variables` (Dynamic Parser Schema)
+| รูปแบบตัวแปร | ชนิดข้อมูล | รูปแบบ Regex | พฤติกรรมในเอกสาร Word |
+| :--- | :--- | :--- | :--- |
+| **Text Variable** | ข้อความ | `\{\{\s*([^{}]+?)\s*\}\}` | สร้างช่องพิมพ์ข้อความ และนำค่าที่พิมพ์แทรกลงในเอกสาร |
+| **Radio Variable** | ปุ่มวิทยุ | `\{\{\s*opt:([^{}]+?)\s*\}\}` | สร้างปุ่มเลือก `🔘 มี` ➔ แทรกคำนั้น / `⚪ ไม่มี` ➔ ไม่แทรกคำนั้น |
+
+---
+
 ## 📡 2. REST API Endpoints Specification
 
 Base URL: `/api/v1/templates`
