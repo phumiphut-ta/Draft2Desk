@@ -37,12 +37,21 @@ function processThaiWordBreaks(html) {
     try {
         const segmenter = new Intl.Segmenter('th', { granularity: 'word' });
         return html.replace(/(>|^)([^<]+)(?=<|$)/g, (match, prefix, text) => {
-            const segments = segmenter.segment(text);
+            // Split text by HTML entities (e.g. &nbsp; &amp; &lt; &gt;) to avoid breaking entity strings
+            const parts = text.split(/(&[a-zA-Z0-9#]+;)/g);
             let processedText = '';
-            for (const seg of segments) {
-                processedText += seg.segment;
-                if (seg.isWordLike && !/[\u200B\s]/.test(seg.segment)) {
-                    processedText += '\u200B';
+            for (const part of parts) {
+                if (/^&[a-zA-Z0-9#]+;$/.test(part)) {
+                    // HTML entity — preserve as-is without word breaking
+                    processedText += part;
+                } else if (part) {
+                    const segments = segmenter.segment(part);
+                    for (const seg of segments) {
+                        processedText += seg.segment;
+                        if (seg.isWordLike && !/[\u200B\s]/.test(seg.segment)) {
+                            processedText += '\u200B';
+                        }
+                    }
                 }
             }
             return prefix + processedText;
