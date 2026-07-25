@@ -203,7 +203,7 @@ function createFloatingTextBoxOoxml(htmlContent) {
               <w:pict>
                 <!-- VML Shape: position:absolute (floats), filled="f" (transparent), stroked="f" (no border) -->
                 <v:rect style="position:absolute;margin-left:0pt;margin-top:0pt;width:400pt;height:250pt;z-index:251659264;v-text-anchor:top" filled="f" stroked="f">
-                  <v:textbox style="mso-fit-shape-to-text:t;mso-next-textbox:#Text_x0020_Box_x0020_1">
+                  <v:textbox style="mso-fit-shape-to-text:t;">
                     <w:txbxContent>
                       ${paragraphsOoxml}
                     </w:txbxContent>
@@ -226,6 +226,9 @@ function createFloatingTextBoxOoxml(htmlContent) {
  * @returns {Promise<boolean>} - Promise resolving to true if inserted, false otherwise
  */
 async function insertHtmlToWord(htmlContent) {
+    const settings = (typeof getAppSettings === 'function') ? getAppSettings() : { fontFamily: 'TH Sarabun New', fontSize: 16 };
+    const cleanHtml = ensureHtmlFormat(htmlContent);
+
     if (isOfficeInitialized) {
         try {
             // Generate valid DrawingML OOXML for a transparent borderless text box shape
@@ -233,15 +236,21 @@ async function insertHtmlToWord(htmlContent) {
 
             await Word.run(async (context) => {
                 const selection = context.document.getSelection();
-                // Insert using OOXML
-                selection.insertOoxml(ooxml, Word.InsertLocation.replace);
-                await context.sync();
+                try {
+                    selection.insertOoxml(ooxml, Word.InsertLocation.replace);
+                    await context.sync();
+                } catch (ooxmlErr) {
+                    console.warn("insertOoxml failed, fallback to insertHtml:", ooxmlErr);
+                    const fullHtml = `<div style="font-family: '${settings.fontFamily}', 'TH Sarabun New', sans-serif; font-size: ${settings.fontSize}pt; text-align: justify;">${cleanHtml}</div>`;
+                    selection.insertHtml(fullHtml, Word.InsertLocation.replace);
+                    await context.sync();
+                }
             });
-            showToast("แทรกกล่องข้อความลอย (โปร่งใส ไม่มีเส้นขอบ) เรียบร้อยแล้ว!", "success");
+            showToast("แทรกกล่องข้อความเรียบร้อยแล้ว!", "success");
             return true;
         } catch (error) {
-            console.error("Error inserting OOXML into Word:", error);
-            showToast(`เกิดข้อผิดพลาดในการแทรกเนื้อหา: ${error.message}`, "error");
+            console.error("Error inserting into Word:", error);
+            showToast(`เกิดข้อผิดพลาดในการแทรกเนื้อหา: ${error.message || 'GeneralException'}`, "error");
             return false;
         }
     } else {
