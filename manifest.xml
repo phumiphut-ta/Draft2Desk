@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<OfficeApp 
+  xmlns="http://schemas.microsoft.com/office/appforoffice/1.1" 
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+  xmlns:bt="http://schemas.microsoft.com/office/officeappbasictypes/1.0" 
+  xmlns:ov="http://schemas.microsoft.com/office/taskpaneappversionoverrides" 
+  xsi:type="TaskPaneApp">
+  
+  <Id>9516DF78-5786-4E83-BDFD-E55EFBB71A10</Id>
+  <Version>1.0.0.0</Version>
+  <ProviderName>Draft2Desk Team</ProviderName>
+  <DefaultLocale>th-TH</DefaultLocale>
+  <DisplayName DefaultValue="Draft2Desk"/>
+  <Description DefaultValue="ระบบตั้งแท่นเอกสารและจัดการเทมเพลตสำหรับ Microsoft Word"/>
+  
+  <IconUrl DefaultValue="http://localhost:8000/assets/icon-32.png"/>
+  <HighResolutionIconUrl DefaultValue="http://localhost:8000/assets/icon-80.png"/>
+  
+  <SupportUrl DefaultValue="http://localhost:8000/support"/>
+  
+  <Domains>
+    <Domain>http://localhost:8000</Domain>
+  </Domains>
+  
+  <Hosts>
+    <Host Name="Document"/>
+  </Hosts>
+  
+  <DefaultSettings>
+    <SourceLocation DefaultValue="http://localhost:8000/index.html"/>
+  </DefaultSettings>
+  
+  <Permissions>ReadWriteDocument</Permissions>
+  
+  <VersionOverrides xmlns="http://schemas.microsoft.com/office/taskpaneappversionoverrides" xsi:type="VersionOverridesV1_0">
+    <Hosts>
+      <Host xsi:type="Document">
+        <DesktopFormFactor>
+          <GetStarted>
+            <Title resid="GetStarted.Title"/>
+            <Description resid="GetStarted.Description"/>
+            <LearnMoreUrl resid="GetStarted.LearnMore"/>
+          </GetStarted>
+          <FunctionFile resid="Commands.Url"/>
+          <ExtensionPoint xsi:type="PrimaryCommandSurface">
+            <OfficeTab id="TabHome">
+              <Group id="Draft2DeskGroup">
+                <Label resid="GroupLabel"/>
+                <Icon>
+                  <bt:Image size="16" resid="icon-16"/>
+                  <bt:Image size="32" resid="icon-32"/>
+                  <bt:Image size="80" resid="icon-80"/>
+                </Icon>
+                <Control xsi:type="Button" id="Draft2DeskBtn">
+                  <Label resid="BtnLabel"/>
+                  <Supertip>
+                    <Title resid="BtnTitle"/>
+                    <Description resid="BtnDesc"/>
+                  </Supertip>
+                  <Icon>
+                    <bt:Image size="16" resid="icon-16"/>
+                    <bt:Image size="32" resid="icon-32"/>
+                    <bt:Image size="80" resid="icon-80"/>
+                  </Icon>
+                  <Action xsi:type="ShowTaskpane">
+                    <SourceLocation resid="Taskpane.Url"/>
+                  </Action>
+                </Control>
+              </Group>
+            </OfficeTab>
+          </ExtensionPoint>
+        </DesktopFormFactor>
+      </Host>
+    </Hosts>
+    <Resources>
+      <bt:Images>
+        <bt:Image id="icon-16" DefaultValue="http://localhost:8000/assets/icon-16.png"/>
+        <bt:Image id="icon-32" DefaultValue="http://localhost:8000/assets/icon-32.png"/>
+        <bt:Image id="icon-80" DefaultValue="http://localhost:8000/assets/icon-80.png"/>
+      </bt:Images>
+      <bt:Urls>
+        <bt:Url id="Commands.Url" DefaultValue="http://localhost:8000/index.html"/>
+        <bt:Url id="Taskpane.Url" DefaultValue="http://localhost:8000/index.html"/>
+        <bt:Url id="GetStarted.LearnMore" DefaultValue="http://localhost:8000/index.html"/>
+      </bt:Urls>
+      <bt:ShortStrings>
+        <bt:String id="GetStarted.Title" DefaultValue="ใช้งาน Draft2Desk"/>
+        <bt:String id="GroupLabel" DefaultValue="Draft2Desk"/>
+        <bt:String id="BtnLabel" DefaultValue="จัดการเทมเพลต"/>
+        <bt:String id="BtnTitle" DefaultValue="ตั้งแท่นเอกสาร"/>
+      </bt:ShortStrings>
+      <bt:LongStrings>
+        <bt:String id="GetStarted.Description" DefaultValue="ช่วยให้คุณแทรกเทมเพลตและร่างเอกสารได้อย่างรวดเร็วด้วยการแทนที่ตัวแปรอัตโนมัติ"/>
+        <bt:String id="BtnDesc" DefaultValue="เปิดแผงหน้าต่าง Draft2Desk เพื่อเลือกและแทรกเทมเพลตลงในเอกสาร"/>
+      </bt:LongStrings>
+    </Resources>
+  </VersionOverrides>
+</OfficeApp>

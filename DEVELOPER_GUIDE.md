@@ -1,0 +1,174 @@
+# 🛠️ คู่มือนักพัฒนาและสถาปัตยกรรมระบบ (Developer Guide)
+
+เอกสารนี้รวบรวมรายละเอียดทางเทคนิค สถาปัตยกรรมซอฟต์แวร์ API Specifications และโครงสร้าง OOXML ของระบบ **Draft2Desk**
+
+---
+
+## 🏗️ 1. สถาปัตยกรรมระบบ (System Architecture)
+
+Draft2Desk ออกแบบตามสถาปัตยกรรม Decoupled Web Add-in 3 เลเยอร์:
+
+```text
++-------------------------------------------------------------+
+|                Microsoft Word (Host Client)                 |
+|  [Office.js SDK] <---> [Selection / OOXML Coercion API]     |
++-------------------------------------------------------------+
+                              ▲
+                              │ HTTP / Static File Serving
+                              ▼
++-------------------------------------------------------------+
+|                Frontend Layer (Vanilla Web Stack)            |
+|  - index.html (Single Page App Layout)                      |
+|  - style.css (Dark Mode Design Tokens & CSS Grid/Flexbox)    |
+|  - app.js (CRUD Operations, Variables Drawer, Settings)      |
+|  - office-helper.js (DOM-to-OOXML Parser & VML Packager)     |
++-------------------------------------------------------------+
+                              ▲
+                              │ REST APIs (JSON)
+                              ▼
++-------------------------------------------------------------+
+|                Backend Layer (Python FastAPI)               |
+|  - main.py (FastAPI App & Static Directory Mounting)        |
+|  - database.py (SQLite Connection & Table Initialization)   |
+|  - models.py (Pydantic Validation & Regex Placeholders)     |
+|  - routers/templates.py (RESTful API Endpoints)              |
++-------------------------------------------------------------+
+                              ▲
+                              │ SQL
+                              ▼
++-------------------------------------------------------------+
+|                Database Layer (SQLite3)                     |
+|  - draft2desk.db (Table: templates)                         |
++-------------------------------------------------------------+
+```
+
+---
+
+## 📡 2. REST API Endpoints Specification
+
+Base URL: `/api/v1/templates`
+
+### 1. List Templates
+* **GET** `/api/v1/templates`
+* **Response `200 OK`**:
+```json
+[
+  {
+    "id": "tpl-12345",
+    "title": "บันทึกเสนอขออนุมัติหลักการ",
+    "category": "บันทึกข้อความ",
+    "content_html": "เรียน {{ผู้รับ}}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;เรื่อง {{เรื่อง}}",
+    "variables": ["ผู้รับ", "เรื่อง"]
+  }
+]
+```
+
+### 2. Get Single Template
+* **GET** `/api/v1/templates/{id}`
+* **Response `200 OK`**: `TemplateResponse` Object
+* **Response `404 Not Found`**: `{"detail": "Template not found"}`
+
+### 3. Create Template
+* **POST** `/api/v1/templates`
+* **Request Body**:
+```json
+{
+  "title": "คำสั่งแต่งตั้งคณะทำงาน",
+  "category": "คำสั่ง",
+  "content_html": "คำสั่งกรมเรื่อง {{เรื่อง}}<br>สั่ง ณ วันที่ {{วันที่}}"
+}
+```
+* **Response `200 OK`**: Created `TemplateResponse` with auto-parsed `variables`.
+
+### 4. Update Template
+* **PUT** `/api/v1/templates/{id}`
+* **Request Body**: `TemplateCreate` Object
+
+### 5. Delete Template
+* **DELETE** `/api/v1/templates/{id}`
+* **Response `200 OK`**: `{"message": "Template deleted successfully"}`
+
+---
+
+## 📄 3. OOXML & VML Technical Specification
+
+เพื่อแทรกกล่องข้อความลอยแบบโปร่งใส ไม่มีขอบ และยืดหยุ่นใน MS Word ผ่าน `Office.js` `insertOoxml`:
+
+### Flat OPC Package Wrapper:
+```xml
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<pkg:package xmlns:pkg="http://schemas.microsoft.com/office/2006/xmlPackage">
+  <pkg:part pkg:name="/_rels/.rels" pkg:contentType="application/vnd.openxmlformats-package.relationships+xml" pkg:padding="512">
+    <pkg:xmlData>
+      <Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+        <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/>
+      </Relationships>
+    </pkg:xmlData>
+  </pkg:part>
+  <pkg:part pkg:name="/word/document.xml" pkg:contentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml">
+    <pkg:xmlData>
+      <w:document 
+        xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" 
+        xmlns:v="urn:schemas-microsoft-com:vml"
+        xmlns:o="urn:schemas-microsoft-com:office:office">
+        <w:body>
+          <w:p>
+            <w:r>
+              <w:pict>
+                <!-- VML Shape: position:absolute (floating), filled="f" (transparent), stroked="f" (borderless) -->
+                <v:rect style="position:absolute;margin-left:0pt;margin-top:0pt;width:400pt;height:250pt;z-index:251659264;v-text-anchor:top" filled="f" stroked="f">
+                  <v:textbox style="mso-fit-shape-to-text:t;">
+                    <w:txbxContent>
+                      <w:p>
+                        <w:pPr><w:ind w:left="720"/></w:pPr>
+                        <w:r>
+                          <w:rPr>
+                            <w:rFonts w:ascii="TH Sarabun New" w:hAnsi="TH Sarabun New" w:cs="TH Sarabun New"/>
+                            <w:sz w:val="32"/>
+                            <w:szCs w:val="32"/>
+                            <w:b/>
+                          </w:rPr>
+                          <w:t xml:space="preserve">ข้อความทดสอบ</w:t>
+                        </w:r>
+                      </w:p>
+                    </w:txbxContent>
+                  </v:textbox>
+                </v:rect>
+              </w:pict>
+            </w:r>
+          </w:p>
+        </w:body>
+      </w:document>
+    </pkg:xmlData>
+  </pkg:part>
+</pkg:package>
+```
+
+### Key Parameters:
+* **Font Family:** `<w:rFonts w:ascii="TH Sarabun New" w:hAnsi="TH Sarabun New" w:cs="TH Sarabun New"/>`
+* **Font Size (Half-Points):** `<w:sz w:val="32"/>` (32 = 16pt)
+* **Left Indent (Twips):** `<w:ind w:left="720"/>` (720 twips = 0.5 inch / ~8 spaces)
+* **Auto-fit Height:** `style="mso-fit-shape-to-text:t;"`
+
+---
+
+## 🗄️ 4. Database Schema (SQLite)
+
+```sql
+CREATE TABLE IF NOT EXISTS templates (
+    id TEXT PRIMARY KEY,
+    title TEXT NOT NULL,
+    category TEXT NOT NULL,
+    content_html TEXT NOT NULL
+);
+```
+
+---
+
+## 📦 5. Building Executables with PyInstaller
+
+ในการคอมไพล์เซิร์ฟเวอร์เป็นไฟล์เดี่ยวแบบไม่มี Dependency:
+```bash
+python scripts/build_exe.py
+```
+สคริปต์จะสร้างพาท `dist/Draft2DeskServer/Draft2DeskServer` สำหรับการแจกจ่ายซอฟต์แวร์

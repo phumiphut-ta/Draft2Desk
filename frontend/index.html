@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Draft2Desk - Template Manager</title>
+    <!-- Google Fonts: Outfit for English/UI, Sarabun, Kanit, Prompt, Chakra Petch for Thai content -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;600&family=Kanit:wght@300;400;500;600&family=Outfit:wght@300;400;500;600;700&family=Prompt:wght@300;400;500&family=Sarabun:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <!-- FontAwesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Office.js SDK -->
+    <script src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js"></script>
+    <!-- Custom Style -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="dark-theme">
+    <div class="app-container">
+        <!-- App Header -->
+        <header class="app-header">
+            <div class="header-logo">
+                <i class="fa-solid fa-file-signature logo-icon animate-glow"></i>
+                <div class="logo-text">
+                    <h1>Draft2Desk</h1>
+                    <p>Smart Document Drafting</p>
+                </div>
+            </div>
+            <div class="header-actions" style="display: flex; align-items: center; gap: 10px;">
+                <button type="button" id="btn-open-settings" class="btn-icon-header" title="ตั้งค่าฟอนต์และขนาดตัวอักษร">
+                    <i class="fa-solid fa-gear"></i>
+                </button>
+                <div class="status-indicator-container">
+                    <span id="office-status-dot" class="status-dot warning"></span>
+                    <span id="office-status-text" class="status-text">Connecting...</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Search & Filter Area -->
+        <section class="control-panel">
+            <div class="search-box">
+                <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                <input type="text" id="search-input" placeholder="ค้นหาเทมเพลต...">
+                <button id="clear-search" class="clear-btn" style="display: none;">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            
+            <div class="category-filters-container">
+                <div class="category-filters" id="category-pills">
+                    <!-- Dynamic category pills go here -->
+                    <button class="pill active" data-category="all">ทั้งหมด</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Templates Grid -->
+        <main class="templates-section">
+            <div class="section-header">
+                <h2>เทมเพลตทั้งหมด (<span id="template-count">0</span>)</h2>
+            </div>
+            <div id="templates-grid" class="templates-grid">
+                <!-- Template cards injected dynamically -->
+                <div class="loading-state">
+                    <i class="fa-solid fa-circle-notch fa-spin"></i>
+                    <p>กำลังโหลดเทมเพลต...</p>
+                </div>
+            </div>
+        </main>
+
+        <!-- Add Button (FAB) -->
+        <button id="fab-add-template" class="fab-btn" title="สร้างเทมเพลตใหม่">
+            <i class="fa-solid fa-plus"></i>
+        </button>
+
+        <!-- Dynamic Variable Customizer Drawer -->
+        <div id="variables-drawer" class="drawer-overlay">
+            <div class="drawer-content">
+                <div class="drawer-header">
+                    <h3>ระบุตัวแปรเทมเพลต</h3>
+                    <button class="close-drawer-btn" id="close-variables-drawer">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+                <div class="drawer-body">
+                    <p class="template-target-title" id="vars-template-title">หัวข้อเทมเพลต</p>
+                    <p class="drawer-instructions">กรอกข้อมูลลงในฟิลด์ตัวแปรด้านล่าง ระบบจะนำไปแทนที่ในเทมเพลตก่อนแทรกลงในเอกสาร Word</p>
+                    <form id="variables-form" class="variables-form">
+                        <!-- Dynamic inputs injected here -->
+                    </form>
+                </div>
+                <div class="drawer-footer">
+                    <button type="button" id="btn-insert-resolved" class="btn btn-primary btn-block">
+                        <i class="fa-solid fa-file-import"></i> แทรกเนื้อหาลง Word
+                    </button>
+                    <button type="button" id="btn-cancel-resolved" class="btn btn-secondary btn-block">
+                        ยกเลิก
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Template Form Modal (Create / Edit) -->
+        <div id="editor-modal" class="modal-overlay">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 id="modal-title">สร้างเทมเพลตใหม่</h3>
+                    <button class="close-modal-btn" id="close-editor-modal">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="template-form">
+                        <input type="hidden" id="edit-template-id" value="">
+                        
+                        <div class="form-group">
+                            <label for="template-title">ชื่อเทมเพลต <span class="required">*</span></label>
+                            <input type="text" id="template-title" placeholder="เช่น บันทึกข้อความเสนออนุมัติ, หนังสือตอบรับ..." required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="template-category">หมวดหมู่ <span class="required">*</span></label>
+                            <div class="category-input-container">
+                                <input type="text" id="template-category" placeholder="เช่น งานสารบรรณ, งานบุคคล..." required list="categories-datalist">
+                                <datalist id="categories-datalist">
+                                    <option value="งานสารบรรณ">
+                                    <option value="งานบุคคล">
+                                    <option value="งานจัดซื้อจัดจ้าง">
+                                    <option value="ทั่วไป">
+                                </datalist>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <div class="label-with-help">
+                                <label for="template-content">เนื้อหาเทมเพลต <span class="required">*</span></label>
+                                <span class="variables-hint">ใช้ <code>{{ชื่อตัวแปร}}</code> เพื่อสร้างตัวแปรในฟอร์ม</span>
+                            </div>
+                            
+                            <!-- WYSIWYG Code Editor / Toolbar Helper -->
+                            <div class="editor-toolbar">
+                                <button type="button" class="toolbar-btn" data-cmd="bold" title="ตัวหนา <b>">
+                                    <i class="fa-solid fa-bold"></i>
+                                </button>
+                                <button type="button" class="toolbar-btn" data-cmd="italic" title="ตัวเอียง <i>">
+                                    <i class="fa-solid fa-italic"></i>
+                                </button>
+                                <button type="button" class="toolbar-btn" data-cmd="underline" title="ขีดเส้นใต้ <u>">
+                                    <i class="fa-solid fa-underline"></i>
+                                </button>
+                                <div class="toolbar-divider"></div>
+                                <button type="button" class="toolbar-btn" data-cmd="heading1" title="หัวข้อใหญ่ <h3>">
+                                    H1
+                                </button>
+                                <button type="button" class="toolbar-btn" data-cmd="heading2" title="หัวข้อย่อย <h4>">
+                                    H2
+                                </button>
+                                <button type="button" class="toolbar-btn" data-cmd="bullet" title="รายการแบบจุด <ul>">
+                                    <i class="fa-solid fa-list-ul"></i>
+                                </button>
+                                <button type="button" class="toolbar-btn" data-cmd="number" title="รายการแบบตัวเลข <ol>">
+                                    <i class="fa-solid fa-list-ol"></i>
+                                </button>
+                                <button type="button" class="toolbar-btn" data-cmd="table" title="แทรกตาราง <table>">
+                                    <i class="fa-solid fa-table"></i>
+                                </button>
+                                <div class="toolbar-divider"></div>
+                                <button type="button" class="toolbar-btn" data-cmd="indent" title="เว้นย่อหน้า (indent)">
+                                    <i class="fa-solid fa-indent"></i>
+                                </button>
+                                <div class="toolbar-divider"></div>
+                                <button type="button" class="toolbar-btn text-accent" id="btn-insert-placeholder" title="แทรกตัวแปรด่วน">
+                                    <i class="fa-solid fa-brackets-curly"></i> + ตัวแปร
+                                </button>
+                            </div>
+
+                            <!-- Inline Variable Input (shows below toolbar, no nested modal needed) -->
+                            <div id="variable-inline-row" style="display:none;align-items:center;gap:8px;padding:8px 12px;background:rgba(139,92,246,0.08);border:1px solid rgba(139,92,246,0.25);border-radius:8px;margin-bottom:8px;">
+                                <i class="fa-solid fa-brackets-curly text-accent" style="font-size:0.85rem;flex-shrink:0;"></i>
+                                <input type="text" id="variable-name-input" placeholder="ชื่อตัวแปร เช่น วันที่, เรื่อง, ชื่อผู้รับ" autocomplete="off"
+                                    style="flex:1;background:rgba(255,255,255,0.05);border:1px solid rgba(139,92,246,0.4);border-radius:6px;padding:6px 10px;color:var(--text-primary);font-size:0.85rem;outline:none;"/>
+                                <button type="button" id="btn-confirm-variable" class="btn btn-primary" style="padding:6px 12px;font-size:0.8rem;flex-shrink:0;">แทรก</button>
+                                <button type="button" id="btn-cancel-variable" class="btn btn-secondary" style="padding:6px 10px;font-size:0.8rem;flex-shrink:0;">✕</button>
+                            </div>
+
+                            <textarea id="template-content" rows="12" placeholder="กรอกเนื้อหาเทมเพลตที่นี่... สามารถเขียน HTML หรือใช้เครื่องมือช่วยจัดรูปแบบด้านบนได้" required></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" form="template-form" class="btn btn-primary" id="btn-save-template">
+                        <i class="fa-solid fa-floppy-disk"></i> บันทึกเทมเพลต
+                    </button>
+                    <button type="button" id="btn-close-modal" class="btn btn-secondary">
+                        ยกเลิก
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Custom Confirm Delete Modal -->
+        <div id="confirm-modal" class="modal-overlay">
+            <div class="modal-content confirm-content">
+                <div class="modal-header confirm-header">
+                    <h3>ยืนยันการลบเทมเพลต</h3>
+                </div>
+                <div class="modal-body confirm-body text-center">
+                    <i class="fa-solid fa-triangle-exclamation warning-icon"></i>
+                    <p>คุณแน่ใจหรือไม่ว่าต้องการลบเทมเพลต <strong id="delete-template-name">...</strong>?</p>
+                    <p class="text-secondary text-sm">การดำเนินการนี้ไม่สามารถย้อนกลับได้</p>
+                </div>
+                <div class="modal-footer confirm-footer">
+                    <button id="btn-confirm-delete" class="btn btn-danger">ลบเทมเพลต</button>
+                    <button id="btn-cancel-delete" class="btn btn-secondary">ยกเลิก</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Insert Variable Modal -->
+        <div id="variable-modal" class="modal-overlay">
+            <div class="modal-content confirm-content">
+                <div class="modal-header">
+                    <h3><i class="fa-solid fa-brackets-curly text-accent"></i> เพิ่มตัวแปร</h3>
+                </div>
+                <div class="modal-body confirm-body">
+                    <p class="text-secondary" style="margin-bottom:12px;font-size:0.85rem;">ระบุชื่อตัวแปรที่ต้องการแทรก เช่น <code style="background:rgba(139,92,246,0.15);padding:2px 6px;border-radius:4px;">ชื่อผู้รับ</code></p>
+                    <input type="text" id="variable-name-input" class="form-control" placeholder="เช่น วันที่, เรื่อง, ชื่อผู้รับ" autocomplete="off" style="width:100%;"/>
+                </div>
+                <div class="modal-footer confirm-footer">
+                    <button id="btn-confirm-variable" class="btn btn-primary"><i class="fa-solid fa-plus"></i> แทรกตัวแปร</button>
+                    <button id="btn-cancel-variable" class="btn btn-secondary">ยกเลิก</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Settings Modal -->
+        <div id="settings-modal" class="modal-overlay">
+            <div class="modal-content" style="max-width: 480px;">
+                <div class="modal-header">
+                    <h3><i class="fa-solid fa-gear text-accent"></i> ตั้งค่ารูปแบบตัวอักษร</h3>
+                    <button type="button" id="close-settings-modal" class="close-btn"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+                <div class="modal-body" style="display:flex; flex-direction:column; gap:16px;">
+                    <div class="form-group">
+                        <label for="settings-font-family"><i class="fa-solid fa-font"></i> รูปแบบฟอนต์หลัก (Font Family)</label>
+                        <select id="settings-font-family" class="form-control">
+                            <option value="TH Sarabun New" selected>TH Sarabun New (ฟอนต์มาตรฐานหนังสือราชการ)</option>
+                            <option value="TH Sarabun PSK">TH Sarabun PSK</option>
+                            <option value="Angsana New">Angsana New</option>
+                            <option value="Cordia New">Cordia New</option>
+                            <option value="TH Chakra Petch">TH Chakra Petch</option>
+                            <option value="Kanit">Kanit</option>
+                            <option value="Prompt">Prompt</option>
+                            <option value="Sarabun">Sarabun (Google Fonts)</option>
+                            <option value="Tahoma">Tahoma</option>
+                            <option value="Arial">Arial</option>
+                            <option value="Calibri">Calibri</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="settings-font-size"><i class="fa-solid fa-text-height"></i> ขนาดตัวอักษรมาตรฐาน (Font Size)</label>
+                        <select id="settings-font-size" class="form-control">
+                            <option value="12">12 pt</option>
+                            <option value="14">14 pt</option>
+                            <option value="16" selected>16 pt (ขนาดมาตรฐานหนังสือราชการ)</option>
+                            <option value="18">18 pt</option>
+                            <option value="20">20 pt</option>
+                            <option value="22">22 pt</option>
+                            <option value="24">24 pt</option>
+                            <option value="28">28 pt</option>
+                        </select>
+                    </div>
+
+                    <!-- Live Font Preview Container -->
+                    <div class="font-preview-container" style="background: rgba(255,255,255,0.03); border: 1px dashed var(--border-color); border-radius: 10px; padding: 14px;">
+                        <span class="text-secondary" style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 6px;">
+                            <i class="fa-solid fa-eye"></i> ตัวอย่างการแสดงผล (Live Preview)
+                        </span>
+                        <div id="settings-font-preview" style="background: #ffffff; color: #000000; padding: 12px 16px; border-radius: 6px; min-height: 65px; word-break: break-word;">
+                            บันทึกข้อความ<br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;เรื่อง ขออนุมัติหลักการและงบประมาณโครงการ (Draft2Desk)
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer" style="justify-content: space-between;">
+                    <button type="button" id="btn-reset-settings" class="btn btn-secondary" style="color: #ef4444; border-color: rgba(239,68,68,0.3);">
+                        <i class="fa-solid fa-rotate-left"></i> คืนค่าเริ่มต้น
+                    </button>
+                    <div style="display:flex; gap:8px;">
+                        <button type="button" id="btn-cancel-settings" class="btn btn-secondary">ยกเลิก</button>
+                        <button type="button" id="btn-save-settings" class="btn btn-primary"><i class="fa-solid fa-check"></i> บันทึกการตั้งค่า</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Toast Notifications Container -->
+        <div id="toast-container" class="toast-container"></div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/office-helper.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
