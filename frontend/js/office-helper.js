@@ -29,13 +29,40 @@ Office.onReady((info) => {
 });
 
 /**
+ * Helper to insert zero-width spaces (\u200B) between Thai words using Intl.Segmenter.
+ * Provides word boundary hints to Microsoft Word and browsers so lines wrap cleanly at Thai word boundaries.
+ */
+function processThaiWordBreaks(html) {
+    if (!html || typeof Intl === 'undefined' || !Intl.Segmenter) return html;
+    try {
+        const segmenter = new Intl.Segmenter('th', { granularity: 'word' });
+        return html.replace(/(>|^)([^<]+)(?=<|$)/g, (match, prefix, text) => {
+            const segments = segmenter.segment(text);
+            let processedText = '';
+            for (const seg of segments) {
+                processedText += seg.segment;
+                if (seg.isWordLike && !/[\u200B\s]/.test(seg.segment)) {
+                    processedText += '\u200B';
+                }
+            }
+            return prefix + processedText;
+        });
+    } catch (e) {
+        console.warn("Intl.Segmenter process error:", e);
+        return html;
+    }
+}
+
+/**
  * Helper to ensure the input content is HTML formatted.
- * Converts raw text newlines to <br> and spaces/tabs to &nbsp; where appropriate.
+ * Converts raw text newlines to <br> and spaces/tabs to &nbsp; where appropriate,
+ * and adds zero-width spaces (\u200B) for natural Thai line breaks.
  */
 function ensureHtmlFormat(content) {
+    let formatted = content;
     const hasHtmlTags = /<[a-z][\s\S]*>/i.test(content);
     if (!hasHtmlTags) {
-        return content
+        formatted = content
             .split(/\n/)
             .map(line => {
                 const leadingSpaces = line.match(/^([ \t]+)/);
@@ -48,21 +75,21 @@ function ensureHtmlFormat(content) {
                 return text;
             })
             .join('<br>');
+    } else {
+        // For HTML, clean up raw newlines (\n) to <br> but avoid duplicate line breaks
+        formatted = content.replace(/\r\n/g, '\n').replace(/\n/g, '<br>');
+        formatted = formatted
+            .replace(/(<br\s*\/?>)+/gi, '<br>')
+            .replace(/(<\/h[1-6]>|<ol>|<\/ol>|<ul>|<\/ul>|<li>|<\/li>|<tr>|<table>|<\/table>|<\/p>|<hr\s*\/?>)<br>/gi, '$1')
+            .replace(/<br>(<h[1-6]>|<ol>|<ul>|<li>|<tr>|<table>|<\/tr>|<\/table>|<p\b|<hr\s*\/?>)/gi, '$1');
+            
+        formatted = formatted.replace(/(^|<br>)([ \t]+)/g, (match, p1, p2) => {
+            const spaceCount = p2.replace(/\t/g, '    ').length;
+            return p1 + '&nbsp;'.repeat(spaceCount * 2);
+        });
     }
     
-    // For HTML, clean up raw newlines (\n) to <br> but avoid duplicate line breaks
-    let formatted = content.replace(/\r\n/g, '\n').replace(/\n/g, '<br>');
-    formatted = formatted
-        .replace(/(<br\s*\/?>)+/gi, '<br>')
-        .replace(/(<\/h[1-6]>|<ol>|<\/ol>|<ul>|<\/ul>|<li>|<\/li>|<tr>|<table>|<\/table>|<\/p>|<hr\s*\/?>)<br>/gi, '$1')
-        .replace(/<br>(<h[1-6]>|<ol>|<ul>|<li>|<tr>|<table>|<\/tr>|<\/table>|<p\b|<hr\s*\/?>)/gi, '$1');
-        
-    formatted = formatted.replace(/(^|<br>)([ \t]+)/g, (match, p1, p2) => {
-        const spaceCount = p2.replace(/\t/g, '    ').length;
-        return p1 + '&nbsp;'.repeat(spaceCount * 2);
-    });
-    
-    return formatted;
+    return processThaiWordBreaks(formatted);
 }
 
 /**
