@@ -40,6 +40,11 @@ Draft2Desk/
 │   ├── requirements.txt    # Python dependencies
 │   └── routers/
 │       └── templates.py    # REST CRUD endpoints
+├── docs/                   # Full documentation suite
+│   ├── INSTALLATION_GUIDE.md # Comprehensive setup & video guide
+│   ├── USER_MANUAL.md      # End-user operations manual (Thai)
+│   ├── DEVELOPER_GUIDE.md  # Technical architecture & API reference
+│   └── WORD_ADDIN_DEV_SPEC.md # System specification & requirements
 ├── frontend/
 │   ├── assets/             # Branding icons (16px, 32px, 80px)
 │   ├── css/
@@ -51,11 +56,11 @@ Draft2Desk/
 ├── scripts/
 │   ├── install_mac.command # macOS 1-click installer
 │   ├── install_win.bat     # Windows 1-click installer
+│   ├── uninstall_mac.command # macOS uninstaller
+│   ├── uninstall_win.bat   # Windows uninstaller
 │   └── build_exe.py        # PyInstaller packaging script
 ├── manifest.xml            # Office Add-in manifest configuration
-├── README.md               # Overview & quick start guide
-├── USER_MANUAL.md          # User operation manual (Thai)
-└── DEVELOPER_GUIDE.md      # Technical architecture & API reference
+└── README.md               # Overview & quick start guide
 ```
 
 ---
