@@ -201,9 +201,9 @@ function createFloatingTextBoxOoxml(htmlContent) {
           <w:p>
             <w:r>
               <w:pict>
-                <!-- VML Shape: position:absolute (floats), filled="f" (transparent), stroked="f" (no border) -->
-                <v:rect style="position:absolute;margin-left:0pt;margin-top:0pt;width:400pt;height:250pt;z-index:251659264;v-text-anchor:top" filled="f" stroked="f">
-                  <v:textbox style="mso-fit-shape-to-text:t;">
+                <!-- VML Shape: width:10.5cm (half A4), inset="1cm,0.2cm,1cm,0.2cm" (1cm left/right margins), filled="f" (transparent), stroked="f" (no border) -->
+                <v:rect style="position:absolute;margin-left:0pt;margin-top:0pt;width:10.5cm;height:200pt;z-index:251659264;v-text-anchor:top" filled="f" stroked="f">
+                  <v:textbox style="mso-fit-shape-to-text:t;" inset="1cm,0.2cm,1cm,0.2cm">
                     <w:txbxContent>
                       ${paragraphsOoxml}
                     </w:txbxContent>
@@ -241,7 +241,7 @@ async function insertHtmlToWord(htmlContent) {
                     await context.sync();
                 } catch (ooxmlErr) {
                     console.warn("insertOoxml failed, fallback to insertHtml:", ooxmlErr);
-                    const fullHtml = `<div lang="th-TH" xml:lang="th-TH" spellcheck="false" style="font-family: '${settings.fontFamily}', 'TH Sarabun New', 'Angsana New', sans-serif; font-size: ${settings.fontSize}pt; text-align: justify; text-justify: inter-cluster; line-height: 1.6;">${cleanHtml}</div>`;
+                    const fullHtml = `<div lang="th-TH" xml:lang="th-TH" spellcheck="false" style="width: 10.5cm; max-width: 100%; padding: 0.2cm 1cm; box-sizing: border-box; font-family: '${settings.fontFamily}', 'TH Sarabun New', 'Angsana New', sans-serif; font-size: ${settings.fontSize}pt; text-align: justify; text-justify: inter-cluster; line-height: 1.6;">${cleanHtml}</div>`;
                     selection.insertHtml(fullHtml, Word.InsertLocation.replace);
                     await context.sync();
                 }
