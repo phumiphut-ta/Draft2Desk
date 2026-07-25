@@ -5,7 +5,8 @@ from backend.database import (
     db_get_template,
     db_create_template,
     db_update_template,
-    db_delete_template
+    db_delete_template,
+    db_clear_all_templates
 )
 from backend.models import TemplateCreate, TemplateUpdate, TemplateResponse
 
