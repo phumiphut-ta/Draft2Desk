@@ -98,7 +98,7 @@ function convertHtmlToOoxml(html) {
         if (node.nodeType === Node.TEXT_NODE) {
             const text = node.nodeValue;
             if (text) {
-                let runPr = `<w:rFonts w:ascii="${fontFamily}" w:hAnsi="${fontFamily}" w:eastAsia="${fontFamily}" w:cs="${fontFamily}"/><w:sz w:val="${fontSizeHalfPt}"/><w:szCs w:val="${fontSizeHalfPt}"/>`;
+                let runPr = `<w:rFonts w:ascii="${fontFamily}" w:hAnsi="${fontFamily}" w:eastAsia="${fontFamily}" w:cs="${fontFamily}"/><w:sz w:val="${fontSizeHalfPt}"/><w:szCs w:val="${fontSizeHalfPt}"/><w:lang w:val="th-TH" w:bidi="th-TH"/>`;
                 if (state.bold) runPr += '<w:b/><w:bCs/>';
                 if (state.italic) runPr += '<w:i/><w:iCs/>';
                 if (state.underline) runPr += '<w:u w:val="single"/>';
@@ -241,7 +241,7 @@ async function insertHtmlToWord(htmlContent) {
                     await context.sync();
                 } catch (ooxmlErr) {
                     console.warn("insertOoxml failed, fallback to insertHtml:", ooxmlErr);
-                    const fullHtml = `<div style="font-family: '${settings.fontFamily}', 'TH Sarabun New', 'Angsana New', sans-serif; font-size: ${settings.fontSize}pt; text-align: justify; text-justify: inter-cluster; line-height: 1.6;">${cleanHtml}</div>`;
+                    const fullHtml = `<div lang="th-TH" xml:lang="th-TH" spellcheck="false" style="font-family: '${settings.fontFamily}', 'TH Sarabun New', 'Angsana New', sans-serif; font-size: ${settings.fontSize}pt; text-align: justify; text-justify: inter-cluster; line-height: 1.6;">${cleanHtml}</div>`;
                     selection.insertHtml(fullHtml, Word.InsertLocation.replace);
                     await context.sync();
                 }
