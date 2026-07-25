@@ -66,3 +66,8 @@ def delete_template(template_id: str):
             detail=f"Template with ID {template_id} not found"
         )
     return None
+
+@router.delete("", status_code=status.HTTP_200_OK)
+def clear_all_templates():
+    db_clear_all_templates()
+    return {"message": "All templates cleared successfully"}

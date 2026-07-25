@@ -128,3 +128,11 @@ def db_delete_template(tpl_id):
     changes = cursor.rowcount
     conn.close()
     return changes > 0
+
+def db_clear_all_templates():
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("DELETE FROM templates")
+    conn.commit()
+    conn.close()
+    return True

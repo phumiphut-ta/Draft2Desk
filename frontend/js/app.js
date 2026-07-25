@@ -754,6 +754,17 @@ function setupSettingsEvents() {
                         return;
                     }
 
+                    // 1. Wipe / clear existing templates first before restoring
+                    await fetch(API_BASE, { method: 'DELETE' });
+
+                    // 2. Restore font family and size settings if present
+                    if (parsed && parsed.settings) {
+                        saveSettings(parsed.settings.fontFamily, parsed.settings.fontSize);
+                        if (fontFamilySelect) fontFamilySelect.value = appSettings.fontFamily;
+                        if (fontSizeSelect) fontSizeSelect.value = appSettings.fontSize;
+                    }
+
+                    // 3. Insert all restored templates
                     let successCount = 0;
                     for (let tpl of importedTemplates) {
                         if (tpl.title && tpl.content_html) {
@@ -772,7 +783,7 @@ function setupSettingsEvents() {
 
                     await fetchTemplates();
                     closeSettingsModal();
-                    showToast(`นำเข้าเทมเพลตสำเร็จ ${successCount} รายการ!`, 'success');
+                    showToast(`สำรองข้อมูลคืนค่าสำเร็จ! ล้างข้อมูลเดิมและนำเข้า ${successCount} รายการ พร้อมคืนค่าฟอนต์เรียบร้อย`, 'success');
                 } catch (err) {
                     console.error('Import Error:', err);
                     showToast(`ไฟล์สำรองไม่ถูกต้อง: ${err.message}`, 'error');
