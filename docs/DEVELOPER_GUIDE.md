@@ -84,9 +84,13 @@ Base URL: `/api/v1/templates`
 * **PUT** `/api/v1/templates/{id}`
 * **Request Body**: `TemplateCreate` Object
 
-### 5. Delete Template
+### 5. Delete Single Template
 * **DELETE** `/api/v1/templates/{id}`
-* **Response `200 OK`**: `{"message": "Template deleted successfully"}`
+* **Response `204 No Content`**
+
+### 6. Clear All Templates (Bulk Wipe for Restore)
+* **DELETE** `/api/v1/templates`
+* **Response `200 OK`**: `{"message": "All templates cleared successfully"}`
 
 ---
 
