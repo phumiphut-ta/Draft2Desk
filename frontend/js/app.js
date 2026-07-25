@@ -174,7 +174,11 @@ function renderTemplates() {
             // Show up to 3 variables, then show count
             const visibleVars = tpl.variables.slice(0, 3);
             visibleVars.forEach(v => {
-                varsHtml += `<span class="var-tag">${v}</span>`;
+                if (isRadioVar(v)) {
+                    varsHtml += `<span class="var-tag var-tag-radio" title="ตัวเลือก มี/ไม่มี"><i class="fa-solid fa-circle-dot" style="font-size:0.65rem;"></i> ${getCleanVarName(v)}</span>`;
+                } else {
+                    varsHtml += `<span class="var-tag">${v}</span>`;
+                }
             });
             if (tpl.variables.length > 3) {
                 varsHtml += `<span class="var-tag count-tag">+${tpl.variables.length - 3}</span>`;

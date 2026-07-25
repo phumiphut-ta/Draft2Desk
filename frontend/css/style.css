@@ -399,6 +399,12 @@ body {
     color: var(--primary-hover);
 }
 
+.var-tag.var-tag-radio {
+    background: rgba(16, 185, 129, 0.08);
+    border: 1px solid rgba(16, 185, 129, 0.25);
+    color: var(--success);
+}
+
 .no-vars-text {
     font-size: 0.75rem;
     color: var(--text-muted);
