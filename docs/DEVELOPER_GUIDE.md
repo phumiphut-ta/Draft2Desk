@@ -237,3 +237,37 @@ python scripts/build_exe.py
   * **macOS:** คัดลอก `manifest.xml` ไปยัง `~/Library/Containers/com.microsoft.Word/Data/Documents/wef/`
 * **Uninstaller Lifecycle:**
   * สคริปต์ถอนการติดตั้งต้องแสดงป็อบอัปถามผู้ใช้: *"ต้องการคงฐานข้อมูลเทมเพลตและค่าตั้งฟอนต์ (`draft2desk.db`) ไว้หรือไม่?"* ก่อนลบไฟล์โปรแกรม
+
+---
+
+## 🔄 6. ขั้นตอนการปรับปรุงและบำรุงรักษาระบบ (Update & Maintenance Workflow)
+
+เมื่อมีการแก้ไขหรือพัฒนาฟีเจอร์ใหม่ในอนาคต ให้นักพัฒนาดำเนินการตาม 4 ขั้นตอนดังนี้:
+
+### 1. การแก้ไขโค้ดและทดสอบในเครื่อง (Local Development & Testing)
+* เปิดรัน FastAPI Backend Server ในโหมด Auto-reload:
+  ```bash
+  source .venv/bin/activate
+  uvicorn backend.main:app --reload --host 127.0.0.1 --port 8000
+  ```
+* ทดสอบหน้าตา Taskpane ผ่านเบราว์เซอร์ที่ `http://127.0.0.1:8000` หรือเปิดทดสอบใน MS Word
+
+### 2. การอัปเดตเลขเวอร์ชันและประวัติการแก้ไข (Versioning & Changelog)
+* หากมีการปรับสิทธิ์หรือโครงสร้าง Manifest ให้เปลี่ยนเลขเวอร์ชันใน `manifest.xml` (เช่น `<Version>1.0.2</Version>`)
+* บันทึกรายละเอียดสิ่งที่ปรับปรุงเพิ่มลงในเอกสาร [docs/CHANGELOG.md](CHANGELOG.md)
+
+### 3. ตรวจสอบไวยากรณ์และนำส่งโค้ดขึ้น Git (Syntax Check & Git Push)
+* ตรวจสอบไวยากรณ์ Python:
+  ```bash
+  python3 -m py_compile backend/routers/templates.py backend/database.py backend/main.py
+  ```
+* Commit และ Push ขึ้นสู่ GitHub Repository:
+  ```bash
+  git add .
+  git commit -m "รายละเอียดสิ่งที่ปรับปรุงแก้ไข..."
+  git push origin main
+  ```
+
+### 4. การส่งมอบตัวอัปเดตให้ผู้ใช้งาน (Distributing Updates)
+* **กรณีใช้ 1-Click Script (`install_mac.command` / `install_win.bat`):** ให้ผู้ใช้ดึงโค้ดใหม่ (`git pull`) แล้วรันสคริปต์ทับเดิมได้ทันที โดยฐานข้อมูล `draft2desk.db` ไม่สูญหาย
+* **กรณีใช้ Installer Package (.msi / .pkg):** รัน `python scripts/build_exe.py` แล้วนำไฟล์ใน `dist/Draft2DeskServer` ไปบิลด์เป็นไฟล์ติดตั้งเวอร์ชันใหม่ส่งมอบให้ผู้ใช้
