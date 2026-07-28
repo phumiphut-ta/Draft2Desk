@@ -2,6 +2,15 @@
 
 ไฟล์นี้รวบรวมประวัติการอัปเดต การเปลี่ยนแปลง และคุณสมบัติใหม่ของระบบ **Draft2Desk - Smart Document Drafting Add-in** สำหรับ Microsoft Word ตามมาตรฐาน [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [v1.0.1] - 2026-07-28 (Windows Compatibility & Registry Automation Patch)
+
+### 🛠️ การแก้ไขและปรับปรุง (Fixed & Improved):
+- **ปรับปรุงรูปแบบแท็ก `<Domains>` ใน `manifest.xml`:**
+  - แก้ไขรูปแบบแท็ก `<Domain>` ตามข้อกำหนด Office Add-in XML Schema โดยระบุเฉพาะชื่อโฮสต์ (`localhost`, `127.0.0.1`) โดยไม่ใส่โปรโตคอล `http://` หรือพอร์ต เพื่อให้โปรแกรม Word บน Windows ยอมรับ Manifest ได้ 100%
+- **ระบบลงทะเบียนสิทธิ์ Windows Registry อัตโนมัติ (Automated Registry Sideloading):**
+  - อัปเดตไฟล์ `scripts/install_win.bat` ให้เพิ่มคีย์ `HKCU\Software\Microsoft\Office\16.0\Word\Security\Trusted Catalogs\Draft2Desk` ให้อัตโนมัติ เพื่อเปิดสิทธิ์ `Show in Menu` ใน Word โดยผู้ใช้ไม่ต้องเข้าไปตั้งค่าใน Trust Center เอง
+  - อัปเดตไฟล์ `scripts/uninstall_win.bat` ให้ลบ คีย์ Registry ดังกล่าวออกอย่างปลอดภัยเมื่อถอนการติดตั้ง
+
 ---
 
 ## [v1.0.0] - 2026-07-25 (Initial Release - Production Ready)

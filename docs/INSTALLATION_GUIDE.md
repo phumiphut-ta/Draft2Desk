@@ -37,9 +37,10 @@
 2. ไปที่โฟลเดอร์ **`scripts/`** ➔ ดับเบิลคลิกไฟล์ **`install_win.bat`**
 3. สคริปต์ Command Prompt จะเปิดขึ้นมาและดำเนินงานให้อัตโนมัติ:
    - คัดลอก `manifest.xml` ไปยังโฟลเดอร์ `%APPDATA%\Microsoft\Word\AddIns`
+   - **ลงทะเบียน Windows Registry (`Trusted Catalogs`) ให้อัตโนมัติ** เพื่อเปิดสิทธิ์ใช้งานใน Word โดยไม่ต้องเข้าตั้งค่าเอง
    - สร้างและเปิดใช้งาน `.venv` สภาพแวดล้อม Python
    - เริ่มต้นเซิร์ฟเวอร์ที่ `http://127.0.0.1:8000`
-4. เปิด **Microsoft Word** ➔ ไปที่แถบ **แทรก (Insert)** ➔ **ส่วนเติมเต็มของฉัน (My Add-ins)** ➔ แถบ **โฟลเดอร์ที่แชร์ (Shared Folder)** ➔ คลิกเลือก **Draft2Desk**
+4. เปิด **Microsoft Word** ➔ ไปที่แถบ **แทรก (Insert)** ➔ **ส่วนเติมเต็มของฉัน (My Add-ins)** ➔ เลือกแถบ **โฟลเดอร์ที่แชร์ (Shared Folder)** ➔ คลิกเลือก **Draft2Desk**
 
 ---
 
