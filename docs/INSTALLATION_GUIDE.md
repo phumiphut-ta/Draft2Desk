@@ -79,6 +79,53 @@ cp manifest.xml ~/Library/Containers/com.microsoft.Word/Data/Documents/wef/
 
 ---
 
+## ⚙️ การตั้งค่าเปิดรันอัตโนมัติตอนเปิดเครื่อง (Auto-Start on Boot)
+
+หากต้องการให้เซิร์ฟเวอร์ Draft2Desk ทำงานเบื้องหลังอัตโนมัติตอนเปิดเครื่อง โดยไม่ต้องกดรันสคริปต์เองทุกวัน:
+
+### 🍎 บน macOS (LaunchAgent Service):
+1. สร้างไฟล์บริการเบื้องหลังอัตโนมัติ:
+   ```bash
+   cat << 'EOF' > ~/Library/LaunchAgents/com.draft2desk.backend.plist
+   <?xml version="1.0" encoding="UTF-8"?>
+   <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+   <plist version="1.0">
+   <dict>
+       <key>Label</key>
+       <string>com.draft2desk.backend</string>
+       <key>ProgramArguments</key>
+       <array>
+           <string>/Users/phumiphut/.gemini/antigravity/playground/Draft2Desk/.venv/bin/python</string>
+           "-m",
+           "uvicorn",
+           "backend.main:app",
+           "--host",
+           "127.0.0.1",
+           "--port",
+           "8000"
+       </array>
+       <key>WorkingDirectory</key>
+       <string>/Users/phumiphut/.gemini/antigravity/playground/Draft2Desk</string>
+       <key>RunAtLoad</key>
+       <true/>
+       <key>KeepAlive</key>
+       <true/>
+   </dict>
+   </plist>
+   EOF
+   ```
+2. โหลดเปิดใช้งานบริการ:
+   ```bash
+   launchctl load ~/Library/LaunchAgents/com.draft2desk.backend.plist
+   ```
+
+### 🪟 บน Windows (Startup Folder Shortcut):
+1. กดปุ่ม `Windows + R` ➔ พิมพ์ `shell:startup` ➔ กด Enter เพื่อเปิดโฟลเดอร์ Startup ของ Windows
+2. คลิกขวา ➔ เลือก **New** ➔ **Shortcut (ทางลัด)**
+3. ระบุเป้าหมายเป็นไฟล์: `[พาธโฟลเดอร์โปรเจกต์]\scripts\install_win.bat` ➔ กด Next และ Finish
+
+---
+
 ## 🗑️ การถอนการติดตั้งอย่างปลอดภัย (Uninstallation)
 
 หากต้องการถอนการติดตั้งแอดอินออกจาก Microsoft Word:
