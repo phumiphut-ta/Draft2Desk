@@ -2,6 +2,20 @@
 
 ไฟล์นี้รวบรวมประวัติการอัปเดต การเปลี่ยนแปลง และคุณสมบัติใหม่ของระบบ **Draft2Desk - Smart Document Drafting Add-in** สำหรับ Microsoft Word ตามมาตรฐาน [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [v1.0.2] - 2026-07-28 (Enterprise Installer & Documentation Standardization)
+
+### 🌟 คุณสมบัติใหม่ (Added):
+- **สคริปต์บิลด์ไฟล์ติดตั้งสำเร็จรูป (Enterprise Installer Package Builder Scripts):**
+  - เพิ่มสคริปต์ Inno Setup `scripts/build_win_installer.iss` สำหรับบิลด์ไฟล์ติดตั้ง `.exe` / `.msi` บน Windows ที่ลงทะเบียน Windows Registry `Trusted Catalogs` ให้อัตโนมัติ พร้อมระบบแจ้งเตือนถามป็อบอัปก่อนลบฐานข้อมูลเมื่อถอนการติดตั้ง
+  - เพิ่มสคริปต์ `scripts/build_mac_pkg.sh` สำหรับบิลด์แพ็กเกจติดตั้ง `.pkg` บน macOS พร้อมตั้งค่าบริการ LaunchAgent เปิดรันอัตโนมัติตอนเปิดเครื่อง
+- **ระบบตั้งค่าเปิดรันอัตโนมัติตอนเปิดเครื่อง (Auto-Start Background Service Setup):**
+  - เพิ่มคำแนะนำและตัวอย่างสคริปต์การตั้งค่าเบื้องหลังแบบไร้หน้าต่าง Terminal รบกวนสำหรับ macOS (LaunchAgent `.plist`) และ Windows (Startup Folder Shortcut) ใน `docs/INSTALLATION_GUIDE.md`
+- **เอกสารบริบทโครงการและมาตรฐานชื่อไฟล์ (Project Context & File Naming Invariants):**
+  - จัดทำไฟล์ `docs/CONTEXT.md` รวบรวมเป้าหมาย สถาปัตยกรรม เทคโนโลยีที่ใช้ และกฎการออกแบบระบบไทย
+  - ปรับมาตรฐานชื่อไฟล์ในโฟลเดอร์ `docs/` ให้เป็นตัวพิมพ์ใหญ่ทั้งหมด (`CONTEXT.md`, `INSTALLATION_GUIDE.md`, `USER_MANUAL.md`, `DEVELOPER_GUIDE.md`, `WORD_ADDIN_DEV_SPEC.md`, `CHANGELOG.md`)
+
+---
+
 ## [v1.0.1] - 2026-07-28 (Windows Compatibility & Registry Automation Patch)
 
 ### 🛠️ การแก้ไขและปรับปรุง (Fixed & Improved):

@@ -60,7 +60,9 @@ Draft2Desk/
 │   ├── install_win.bat     # Windows 1-click installer
 │   ├── uninstall_mac.command # macOS uninstaller
 │   ├── uninstall_win.bat   # Windows uninstaller
-│   └── build_exe.py        # PyInstaller packaging script
+│   ├── build_exe.py        # PyInstaller packaging script
+│   ├── build_win_installer.iss # Windows Inno Setup installer script (.msi/.exe)
+│   └── build_mac_pkg.sh    # macOS PKG package builder script (.pkg)
 ├── manifest.xml            # Office Add-in manifest configuration
 └── README.md               # Overview & quick start guide
 ```
