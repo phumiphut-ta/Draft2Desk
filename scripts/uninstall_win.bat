@@ -14,6 +14,9 @@ if exist "%MANIFEST_TARGET%" (
     echo [i] Draft2Desk Manifest was not found in AddIns folder.
 )
 
+reg delete "HKCU\Software\Microsoft\Office\16.0\Word\Security\Trusted Catalogs\Draft2Desk" /f >nul 2>&1
+echo [✓] Removed Trusted Catalog entry from Windows Registry.
+
 echo [i] Stopping Draft2Desk server process on port 8000...
 for /f "tokens=5" %%a in ('netstat -aon 2^>nul ^| findstr :8000 ^| findstr LISTENING 2^>nul') do (
     taskkill /F /PID %%a >nul 2>&1

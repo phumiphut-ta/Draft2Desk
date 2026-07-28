@@ -19,7 +19,8 @@
   <SupportUrl DefaultValue="http://localhost:8000/support"/>
   
   <Domains>
-    <Domain>http://localhost:8000</Domain>
+    <Domain>localhost</Domain>
+    <Domain>127.0.0.1</Domain>
   </Domains>
   
   <Hosts>

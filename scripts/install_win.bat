@@ -12,13 +12,17 @@ set MANIFEST_TARGET=%APPDATA%\Microsoft\Word\AddIns
 echo [1/3] Preparing Word AddIns Folder...
 if not exist "%MANIFEST_TARGET%" mkdir "%MANIFEST_TARGET%"
 
-echo [2/3] Copying manifest.xml...
+echo [2/3] Copying manifest.xml and registering Trusted Catalog...
 copy /Y "%PROJECT_DIR%\manifest.xml" "%MANIFEST_TARGET%\manifest.xml" >nul
 if %ERRORLEVEL% EQU 0 (
     echo [✓] Manifest copied to %MANIFEST_TARGET%
 ) else (
     echo [X] Failed to copy manifest.xml
 )
+
+reg add "HKCU\Software\Microsoft\Office\16.0\Word\Security\Trusted Catalogs\Draft2Desk" /v "Url" /t REG_SZ /d "%MANIFEST_TARGET%" /f >nul 2>&1
+reg add "HKCU\Software\Microsoft\Office\16.0\Word\Security\Trusted Catalogs\Draft2Desk" /v "Flags" /t REG_DWORD /d 1 /f >nul 2>&1
+echo [✓] Trusted Catalog registered in Windows Registry automatically.
 
 echo [3/3] Setting up Python Virtual Environment...
 cd /d "%PROJECT_DIR%"
