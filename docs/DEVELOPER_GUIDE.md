@@ -219,10 +219,21 @@ CREATE TABLE IF NOT EXISTS templates (
 
 ---
 
-## 📦 5. Building Executables with PyInstaller
+## 📦 5. Building Executables & Enterprise Installers (.msi / .pkg)
 
-ในการคอมไพล์เซิร์ฟเวอร์เป็นไฟล์เดี่ยวแบบไม่มี Dependency:
+### 1. คอมไพล์ Standalone Backend Server (PyInstaller):
 ```bash
 python scripts/build_exe.py
 ```
-สคริปต์จะสร้างพาท `dist/Draft2DeskServer/Draft2DeskServer` สำหรับการแจกจ่ายซอฟต์แวร์
+สคริปต์จะสร้างโฟลเดอร์ `dist/Draft2DeskServer/` บรรจุ Executable และ Static Web Assets ที่สามารถรันได้ทันทีโดยไม่ต้องลง Python ในเครื่องลูก
+
+### 2. ข้อกำหนดสถาปัตยกรรมตัวติดตั้ง (.msi / .pkg):
+* **Packaging:** บรรจุ `Draft2DeskServer` executable ไว้ข้างในไฟล์ติดตั้ง
+* **Auto-Start Registration:**
+  * **Windows:** ลงทะเบียน Windows Service หรือ Startup Registry
+  * **macOS:** คัดลอก LaunchAgent `.plist` ไปยัง `~/Library/LaunchAgents/`
+* **Word Manifest Auto-Sideloading:**
+  * **Windows:** คัดลอก `manifest.xml` ไปยัง `%APPDATA%\Microsoft\Word\AddIns` และตั้งค่า Registry Key `HKCU\Software\Microsoft\Office\16.0\Word\Security\Trusted Catalogs\Draft2Desk` (`Flags = 1`)
+  * **macOS:** คัดลอก `manifest.xml` ไปยัง `~/Library/Containers/com.microsoft.Word/Data/Documents/wef/`
+* **Uninstaller Lifecycle:**
+  * สคริปต์ถอนการติดตั้งต้องแสดงป็อบอัปถามผู้ใช้: *"ต้องการคงฐานข้อมูลเทมเพลตและค่าตั้งฟอนต์ (`draft2desk.db`) ไว้หรือไม่?"* ก่อนลบไฟล์โปรแกรม
