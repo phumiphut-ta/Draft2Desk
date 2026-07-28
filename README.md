@@ -41,10 +41,12 @@ Draft2Desk/
 │   └── routers/
 │       └── templates.py    # REST CRUD endpoints
 ├── docs/                   # Full documentation suite
+│   ├── CONTEXT.md          # Project context & architecture overview
 │   ├── INSTALLATION_GUIDE.md # Comprehensive setup & video guide
 │   ├── USER_MANUAL.md      # End-user operations manual (Thai)
 │   ├── DEVELOPER_GUIDE.md  # Technical architecture & API reference
-│   └── WORD_ADDIN_DEV_SPEC.md # System specification & requirements
+│   ├── WORD_ADDIN_DEV_SPEC.md # System specification & requirements
+│   └── CHANGELOG.md        # Release notes & version history
 ├── frontend/
 │   ├── assets/             # Branding icons (16px, 32px, 80px)
 │   ├── css/
@@ -117,7 +119,7 @@ scripts/install_win.bat
 
 ## 📚 เอกสารประกอบเพิ่มเติม (Documentation)
 
-- 🧠 [docs/context.md](docs/context.md): บริบทโครงการและภาพรวมสถาปัตยกรรม (Project Context)
+- 🧠 [docs/CONTEXT.md](docs/CONTEXT.md): บริบทโครงการและภาพรวมสถาปัตยกรรม (Project Context)
 - 📦 [docs/INSTALLATION_GUIDE.md](docs/INSTALLATION_GUIDE.md): คู่มือการติดตั้งฉบับสมบูรณ์พร้อมวิดีโอสาธิต
 - 📖 [docs/USER_MANUAL.md](docs/USER_MANUAL.md): คู่มือการใช้งานสำหรับผู้ใช้ทั่วไป
 - 🛠️ [docs/DEVELOPER_GUIDE.md](docs/DEVELOPER_GUIDE.md): คู่มือสำหรับนักพัฒนา โครงสร้าง API และ OOXML Specification
