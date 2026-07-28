@@ -23,6 +23,21 @@ for /f "tokens=5" %%a in ('netstat -aon 2^>nul ^| findstr :8000 ^| findstr LISTE
     echo [✓] Stopped server process PID %%a
 )
 
+set SCRIPT_DIR=%~dp0
+set PROJECT_DIR=%SCRIPT_DIR%..
+set DB_FILE=%PROJECT_DIR%\draft2desk.db
+
+if exist "%DB_FILE%" (
+    echo.
+    choice /C YN /M "[?] Do you want to delete your template database (draft2desk.db)? (Y=Delete, N=Keep)"
+    if errorlevel 2 (
+        echo [i] Database draft2desk.db preserved safely.
+    ) else (
+        del /F /Q "%DB_FILE%"
+        echo [✓] Database draft2desk.db deleted.
+    )
+)
+
 echo.
 echo ==========================================
 echo  Draft2Desk uninstalled successfully!    
