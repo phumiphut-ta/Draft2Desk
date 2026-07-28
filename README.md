@@ -117,6 +117,7 @@ scripts/install_win.bat
 
 ## 📚 เอกสารประกอบเพิ่มเติม (Documentation)
 
+- 🧠 [docs/context.md](docs/context.md): บริบทโครงการและภาพรวมสถาปัตยกรรม (Project Context)
 - 📦 [docs/INSTALLATION_GUIDE.md](docs/INSTALLATION_GUIDE.md): คู่มือการติดตั้งฉบับสมบูรณ์พร้อมวิดีโอสาธิต
 - 📖 [docs/USER_MANUAL.md](docs/USER_MANUAL.md): คู่มือการใช้งานสำหรับผู้ใช้ทั่วไป
 - 🛠️ [docs/DEVELOPER_GUIDE.md](docs/DEVELOPER_GUIDE.md): คู่มือสำหรับนักพัฒนา โครงสร้าง API และ OOXML Specification
