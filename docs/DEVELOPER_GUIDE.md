@@ -268,6 +268,11 @@ python scripts/build_exe.py
   git push origin main
   ```
 
-### 4. การส่งมอบตัวอัปเดตให้ผู้ใช้งาน (Distributing Updates)
+### 4. การคอมไพล์ตัวติดตั้งและส่งมอบตัวอัปเดต (Automatic Build & Distribution)
+> [!IMPORTANT]
+> **กฎเหล็กการพัฒนา:** ทุกครั้งที่มีการแก้ไขหรืออัปเดตโค้ดในระบบ ให้ทำการรันสคริปต์คอมไพล์ตัวติดตั้งใหม่ทันที:
+> ```bash
+> .venv/bin/python3 scripts/build_exe.py
+> ```
 * **กรณีใช้ 1-Click Script (`install_mac.command` / `install_win.bat`):** ให้ผู้ใช้ดึงโค้ดใหม่ (`git pull`) แล้วรันสคริปต์ทับเดิมได้ทันที โดยฐานข้อมูล `draft2desk.db` ไม่สูญหาย
-* **กรณีใช้ Installer Package (.msi / .pkg):** รัน `python scripts/build_exe.py` แล้วนำไฟล์ใน `dist/Draft2DeskServer` ไปบิลด์เป็นไฟล์ติดตั้งเวอร์ชันใหม่ส่งมอบให้ผู้ใช้
+* **กรณีใช้ Installer Package (.msi / .pkg):** นำโฟลเดอร์ไฟล์บิลด์ล่าสุดใน `dist/Draft2DeskServer` ไปประกอบเป็นไฟล์ติดตั้งเวอร์ชันใหม่ส่งมอบให้ผู้ใช้
